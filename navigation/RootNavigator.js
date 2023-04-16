@@ -41,7 +41,8 @@ const RootNavigator = ({logo}) => {
 
     return (
         <Stack.Navigator>
-            {isAuthenticated && emailVerified ? (
+            {/*{isAuthenticated && emailVerified ? (*/}
+            {isAuthenticated ? (
                 <>
                     <Stack.Screen
                         name="DrawerNavigator"
@@ -50,7 +51,7 @@ const RootNavigator = ({logo}) => {
                             headerTitle: () => (
                                 <Image
                                     source={logo}
-                                    style={{width: 150, height: 50, resizeMode: 'contain'}}
+                                    style={{width: 150, height: 40, resizeMode: 'contain'}}
                                 />
                             ),
                             headerTitleAlign: 'center',

@@ -14,7 +14,8 @@ const theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: '#e8c30c',
+    // Navy Blue
+    primary: '#0c2e8c',
     accent: '#f1f1f1',
     background: '#f1f1f1',
     surface: '#f1f1f1',

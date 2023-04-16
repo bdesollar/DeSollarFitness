@@ -16,17 +16,18 @@ const InitialInfoScreen = ({navigation, route, onEmailVerified}) => {
         let intervalId;
 
         const checkVerification = async () => {
-            if (auth.currentUser && emailSent) {
+            // if (auth.currentUser && emailSent) {
+            if (auth.currentUser) {
                 await auth.currentUser.reload();
-                if (auth.currentUser.emailVerified) {
-                    if (onEmailVerified) {
-                        onEmailVerified();
-                    }
+                // if (auth.currentUser.emailVerified) {
+                //     if (onEmailVerified) {
+                //         onEmailVerified();
+                //     }
                     clearInterval(intervalId);
                     await handleCreateUser();
-                } else {
-                    setError('Please verify your email.');
-                }
+                // } else {
+                //     setError('Please verify your email.');
+                // }
             }
         };
 

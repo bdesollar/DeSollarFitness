@@ -17,3 +17,5 @@ const decrypt = (cipherText) => {
     const bytes = CryptoJS.AES.decrypt(cipherText, secretKey);
     return bytes.toString(CryptoJS.enc.Utf8);
 };
+
+export {updateUserData, encrypt, decrypt};

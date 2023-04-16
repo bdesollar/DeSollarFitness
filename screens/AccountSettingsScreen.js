@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, Alert, Platform, PermissionsAndroid, Image, ScrollView} from 'react-native';
 import {TextInput, Button, Text, Title, Caption, ProgressBar} from 'react-native-paper';
 import {auth, db, storage} from '../config/firebaseConfig';
-import {updateUserData} from '../firebaseAPICalls/APICalls';
+import {updateUserData} from '../helperFunctions/firebaseCalls';
 import * as ImagePicker from 'expo-image-picker';
 import {manipulateAsync} from 'expo-image-manipulator';
 import * as ImageManipulator from 'expo-image-manipulator';

@@ -33,10 +33,8 @@ const TabNavigator = () => {
                         iconName = focused ? 'ios-home' : 'ios-home-outline';
                     } else if (route.name === 'Profile') {
                         iconName = focused ? 'ios-person' : 'ios-person-outline';
-                    } else if (route.name === 'Message') {
-                        iconName = focused ? 'ios-chatbubbles' : 'ios-chatbubbles-outline';
-                    } else if (route.name === 'NotesStack') {
-                        iconName = focused ? 'ios-book' : 'ios-book-outline';
+                    } else if (route.name === 'Workouts') {
+                        iconName = focused ? 'barbell' : 'barbell-outline';
                     }
 
                     return <Ionicons name={iconName} size={size} color={color}/>;

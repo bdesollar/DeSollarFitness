@@ -69,12 +69,12 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     logo: {
-        height: 300,
-        width: 300,
+        height: 150,
+        width: 150,
         resizeMode: 'contain',
         alignSelf: 'center',
         position: 'absolute',
-        top: 75,
+        top: 175,
     },
 });
 

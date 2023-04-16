@@ -10,7 +10,6 @@ import AccountSettingsStack from './AccountSettingsStack';
 import SignOutButton from '../components/SignOutButton';
 import Icon from 'react-native-paper/src/components/Icon';
 import {IconButton} from 'react-native-paper';
-import ProfileStack from './ProfileStack';
 
 const Drawer = createDrawerNavigator();
 
