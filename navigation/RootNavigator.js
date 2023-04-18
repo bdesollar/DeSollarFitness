@@ -9,6 +9,9 @@ import InitialInfoScreen from '../screens/InitialInfoScreen';
 import {Text} from "react-native-paper";
 import * as SecureStore from "expo-secure-store";
 import {auth} from "../config/firebaseConfig";
+import WorkoutsScreen from "../screens/WorkoutsScreen";
+import WorkoutViewScreen from "../screens/WorkoutViewScreen";
+
 const Stack = createStackNavigator();
 
 const RootNavigator = ({logo}) => {
@@ -47,6 +50,19 @@ const RootNavigator = ({logo}) => {
                     <Stack.Screen
                         name="DrawerNavigator"
                         component={DrawerNavigator}
+                        options={{
+                            headerTitle: () => (
+                                <Image
+                                    source={logo}
+                                    style={{width: 150, height: 40, resizeMode: 'contain'}}
+                                />
+                            ),
+                            headerTitleAlign: 'center',
+                        }}
+                    />
+                    <Stack.Screen
+                        name="WorkoutViewScreen"
+                        component={WorkoutViewScreen}
                         options={{
                             headerTitle: () => (
                                 <Image

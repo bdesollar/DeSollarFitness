@@ -18,4 +18,43 @@ const decrypt = (cipherText) => {
     return bytes.toString(CryptoJS.enc.Utf8);
 };
 
-export {updateUserData, encrypt, decrypt};
+async function addRepsCompletedToExercises() {
+    const emphasisList = ["Full Body", "Legs", "Push", "Pull"]; // Add other emphasis types if necessary
+    const totalWeeks = 12; // Adjust the total weeks if necessary
+
+    for (const emphasis of emphasisList) {
+        for (let week = 1; week <= totalWeeks; week++) {
+            const weeksSnapshot = await db
+                .collection("workouts")
+                .doc(emphasis)
+                .collection(`Week ${week}`)
+                .get();
+
+            weeksSnapshot.forEach(async (daySnapshot) => {
+                const dayId = daySnapshot.id;
+                const exercisesSnapshot = await db
+                    .collection("workouts")
+                    .doc(emphasis)
+                    .collection(`Week ${week}`)
+                    .doc(dayId)
+                    .collection("exercises")
+                    .get();
+
+                exercisesSnapshot.forEach(async (exerciseSnapshot) => {
+                    const exerciseId = exerciseSnapshot.id;
+                    await db
+                        .collection("workouts")
+                        .doc(emphasis)
+                        .collection(`Week ${week}`)
+                        .doc(dayId)
+                        .collection("exercises")
+                        .doc(exerciseId)
+                        .update({repsCompleted: 0});
+                });
+            });
+        }
+    }
+}
+
+
+export {updateUserData, encrypt, decrypt, addRepsCompletedToExercises};

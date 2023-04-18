@@ -86,12 +86,12 @@ const styles = StyleSheet.create({
         marginVertical: 10,
     },
     logo: {
-        height: 150,
-        width: 150,
+        height: 300,
+        width: 300,
         resizeMode: 'contain',
         alignSelf: 'center',
         position: 'absolute',
-        top: 125,
+        top: 75,
     },
 });
 
