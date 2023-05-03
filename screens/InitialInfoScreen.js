@@ -3,6 +3,7 @@ import {StyleSheet} from 'react-native';
 import {TextInput, Button, HelperText} from 'react-native-paper';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {auth, db} from '../config/firebaseConfig.js';
+import {createUser} from "../helperFunctions/firebaseCalls";
 
 const InitialInfoScreen = ({navigation, route, onEmailVerified}) => {
     const [name, setName] = useState('');
@@ -19,15 +20,8 @@ const InitialInfoScreen = ({navigation, route, onEmailVerified}) => {
             // if (auth.currentUser && emailSent) {
             if (auth.currentUser) {
                 await auth.currentUser.reload();
-                // if (auth.currentUser.emailVerified) {
-                //     if (onEmailVerified) {
-                //         onEmailVerified();
-                //     }
-                    clearInterval(intervalId);
-                    await handleCreateUser();
-                // } else {
-                //     setError('Please verify your email.');
-                // }
+                clearInterval(intervalId);
+                await handleCreateUser();
             }
         };
 
@@ -54,7 +48,8 @@ const InitialInfoScreen = ({navigation, route, onEmailVerified}) => {
             // Create user in Firebase Auth
             const {user} = await auth.createUserWithEmailAndPassword(email, password);
             // Confirm email before creating user
-            await auth.currentUser.sendEmailVerification();
+            // await auth.currentUser.sendEmailVerification();
+            await handleCreateUser();
             setEmailSent(true);
             setError('Verification email sent. Please check your inbox.');
         } catch (err) {
@@ -63,14 +58,20 @@ const InitialInfoScreen = ({navigation, route, onEmailVerified}) => {
     };
 
     const handleCreateUser = async () => {
-        // Add user info to Firestore
-        await db.collection('users').doc(auth.currentUser.uid).set({
+        const data = {
             name,
             phoneNumber,
             bio,
-        });
+            maxes: {
+                squat: 0,
+                bench: 0,
+                deadlift: 0,
+                overheadPress: 0,
+            }
+        }
+        await createUser(auth.currentUser.uid, data);
 
-        navigation.navigate('Login');
+        navigation.navigate('Home');
     };
 
     const resendVerificationEmail = async () => {

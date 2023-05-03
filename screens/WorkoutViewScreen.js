@@ -2,76 +2,112 @@ import React, {useState, useEffect} from 'react';
 import {View, StyleSheet, FlatList} from 'react-native';
 import {Card, Title, Paragraph, TextInput, Button} from 'react-native-paper';
 import {WebView} from 'react-native-webview';
+import {db} from "../config/firebaseConfig";
+import {updateData} from "../helperFunctions/firebaseCalls";
 
-const WorkoutViewScreen = () => {
+const WorkoutViewScreen = ({route}) => {
     const [workoutData, setWorkoutData] = useState([]);
+    const [workoutName, setWorkoutName] = useState('');
+    const {dayId, week, emphasis} = route.params;
 
     useEffect(() => {
-        // Fetch data from Firebase and update workoutData variable here.
-        // For now, we'll use dummy data.
-        const dummyData = [
-            {
-                id: '1',
-                exercise: 'Squats',
-                youtubeUrl: 'https://www.youtube.com/embed/aclHkVaku9U',
-                targetWeight: 200,
-                targetReps: 10,
-                actualWeight: 0,
-                actualReps: 0,
-            },
-            {
-                id: '2',
-                exercise: 'Bench Press',
-                youtubeUrl: 'https://www.youtube.com/embed/rT7DgCr-3pg',
-                targetWeight: 150,
-                targetReps: 8,
-                actualWeight: 0,
-                actualReps: 0,
-            },
-            // Add more exercises
-        ];
-        setWorkoutData(dummyData);
+        fetchWorkoutData();
     }, []);
 
-    const updateWeight = (id, value) => {
+    const fetchWorkoutData = async () => {
+        const workoutSnapshot = await db
+            .collection("workouts")
+            .doc(emphasis)
+            .collection(`Week ${week}`)
+            .doc(dayId)
+            .collection("exercises").orderBy("servertime", "asc")
+            .get();
+
+        const workoutDataArray = [];
+        workoutSnapshot.forEach((exerciseDoc) => {
+            const exerciseData = exerciseDoc.data();
+            const data = {
+                ...exerciseData,
+                id: exerciseDoc.id,
+            };
+            workoutDataArray.push(data);
+        });
+        setWorkoutData(workoutDataArray);
+    };
+
+
+    const updateWeight = async (id, value) => {
         setWorkoutData(
-            workoutData.map((item) => (item.id === id ? {...item, actualWeight: value} : item))
+            workoutData.map((item) => (item.id === id ? {...item, Load: value} : item))
+        );
+        await updateData("workouts", emphasis, `Week ${week}`, dayId, id, {
+                Load: value,
+            }
         );
     };
 
-    const updateReps = (id, value) => {
+    const updateReps = async (id, value) => {
+        let intValue = parseInt(value);
+        if (isNaN(intValue)) {
+            intValue = 0;
+        }
+
+        console.log("ID: ", id, "Value: ", intValue);
         setWorkoutData(
-            workoutData.map((item) => (item.id === id ? {...item, actualReps: value} : item))
+            workoutData.map((item) => (item.id === id ? {...item, repsDone: intValue} : item))
         );
+
+        console.log("Updating reps with value:", intValue); // Add this line
+        await updateData("workouts", emphasis, `Week ${week}`, dayId, id, {
+            repsDone: intValue,
+        });
     };
 
-    const renderItem = ({item}) => (
-        <Card style={styles.card}>
-            <Card.Content>
-                <Title>{item.exercise}</Title>
-                <WebView
-                    style={styles.video}
-                    source={{uri: item.youtubeUrl}}
-                    allowsFullscreenVideo={true}
-                />
-                <Paragraph>Target: {item.targetWeight} lbs x {item.targetReps} reps</Paragraph>
-                <TextInput
-                    label="Weight"
-                    value={String(item.actualWeight)}
-                    onChangeText={(value) => updateWeight(item.id, parseInt(value))}
-                    keyboardType="numeric"
-                    style={styles.input}
-                />
-                <TextInput
-                    label="Reps"
-                    value={String(item.actualReps)}
-                    onChangeText={(value) => updateReps(item.id, parseInt(value))}
-                    keyboardType="numeric"
-                    style={styles.input}
-                />
-            </Card.Content>
-        </Card>
-    );
+
+    async function updateNotes(id, value) {
+        await updateData("workouts", emphasis, `Week ${week}`, dayId, id, {
+            exerciseNotes: value,
+        })
+    }
+
+    const renderItem = ({item}) => {
+        //console.log(item);
+
+        return (
+            <Card style={styles.card}>
+                <Card.Content>
+                    <Title style={styles.cardTitle}>{item.Exercise}</Title>
+                    <WebView
+                        style={styles.video}
+                        source={{uri: item.exerciseLink}}
+                        allowsInlineMediaPlayback={true}
+                        javaScriptEnabled={true}
+                    />
+                    <Paragraph>Warm-Up Sets: {item['Warm-up Sets']}</Paragraph>
+                    <Paragraph>Working Sets: {item['Working Sets']} sets</Paragraph>
+                    <Paragraph>Reps: {item['Reps']}</Paragraph>
+                    <TextInput
+                        label="Weight"
+                        value={String(item.Load)}
+                        onChangeText={(value) => updateWeight(item.id, value)}
+                        style={styles.input}
+                    />
+                    <TextInput
+                        label="Reps Done"
+                        value={String(item.repsDone)}
+                        onChangeText={(value) => updateReps(item["id"], value)}
+                        style={styles.input}
+                    />
+                    <TextInput
+                        label="Notes"
+                        value={item.notes}
+                        onChangeText={(value) => updateNotes(item.id, value)}
+                        style={styles.input}
+                    />
+                </Card.Content>
+            </Card>
+        );
+    };
 
     return (
         <View style={styles.container}>
@@ -83,9 +119,10 @@ const WorkoutViewScreen = () => {
             <Button
                 mode="contained"
                 onPress={() => {
-                    console.log('Submit workout data:', workoutData);
+                    console.log("Submit workout data:", workoutData);
                     // Save workout data to Firebase here
                 }}
+                style={styles.submitButton}
             >
                 Submit
             </Button>
@@ -97,18 +134,33 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 8,
+        backgroundColor: "#f0f0f0",
     },
     card: {
         marginBottom: 16,
+        backgroundColor: "#ffffff",
+        borderRadius: 10,
+        elevation: 5,
+    },
+    cardTitle: {
+        color: "#1e88e5",
     },
     video: {
-        alignSelf: 'center',
-        width: '100%',
+        alignSelf: "center",
+        width: "100%",
         height: 200,
+        borderRadius: 10,
+        overflow: "hidden",
     },
     input: {
         marginBottom: 16,
-        backgroundColor: 'transparent',
+        backgroundColor: "transparent",
+        borderRadius: 5,
+        borderColor: "#1e88e5",
+    },
+    submitButton: {
+        marginTop: 10,
+        backgroundColor: "#1e88e5",
     },
 });
 
