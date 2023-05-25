@@ -3,7 +3,7 @@ import {StyleSheet} from 'react-native';
 import {TextInput, Button, HelperText} from 'react-native-paper';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {auth, db} from '../config/firebaseConfig.js';
-import {createUser} from "../helperFunctions/firebaseCalls";
+import {copyWorkoutsToUser, createData, createUser} from "../helperFunctions/firebaseCalls";
 
 const InitialInfoScreen = ({navigation, route, onEmailVerified}) => {
     const [name, setName] = useState('');
@@ -60,6 +60,8 @@ const InitialInfoScreen = ({navigation, route, onEmailVerified}) => {
     const handleCreateUser = async () => {
         const data = {
             name,
+            email: auth.currentUser.email,
+            uid: auth.currentUser.uid,
             phoneNumber,
             bio,
             maxes: {
@@ -70,6 +72,7 @@ const InitialInfoScreen = ({navigation, route, onEmailVerified}) => {
             }
         }
         await createUser(auth.currentUser.uid, data);
+        await createData();
 
         navigation.navigate('Home');
     };

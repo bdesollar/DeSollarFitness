@@ -7,7 +7,6 @@ import SignUpScreen from '../screens/SignUpScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import InitialInfoScreen from '../screens/InitialInfoScreen';
 import {Text} from "react-native-paper";
-import * as SecureStore from "expo-secure-store";
 import {auth} from "../config/firebaseConfig";
 import WorkoutsScreen from "../screens/WorkoutsScreen";
 import WorkoutViewScreen from "../screens/WorkoutViewScreen";
@@ -17,34 +16,23 @@ const Stack = createStackNavigator();
 const RootNavigator = ({logo}) => {
 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [emailVerified, setEmailVerified] = useState(false);
 
     useEffect(() => {
-        const checkAuthentication = async () => {
-            const savedUser = await SecureStore.getItemAsync('isAuthenticated');
-            setIsAuthenticated(savedUser === 'true');
-        };
-        checkAuthentication();
-
-        const unsubscribe = auth.onAuthStateChanged(async user => {
+        const unsubscribe = auth.onAuthStateChanged(user => {
             console.log('user', user);
             if (user) {
                 setIsAuthenticated(true);
-                await SecureStore.setItemAsync('isAuthenticated', 'true');
-                setEmailVerified(user.emailVerified);
+                console.log("user is authenticated");
             } else {
                 setIsAuthenticated(false);
-                setEmailVerified(false);
-                await SecureStore.deleteItemAsync('isAuthenticated');
+                console.log("user is not authenticated");
             }
         });
         return () => unsubscribe();
     }, []);
 
-
     return (
         <Stack.Navigator>
-            {/*{isAuthenticated && emailVerified ? (*/}
             {isAuthenticated ? (
                 <>
                     <Stack.Screen

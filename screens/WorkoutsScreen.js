@@ -36,7 +36,9 @@ const WorkoutsScreen = () => {
         }
         setEmphasis(emphasis);
         const weekSnapshot = await db
-            .collection("workouts")
+            .collection("users")
+            .doc(auth.currentUser.uid)
+            .collection("PushPullLegs")
             .doc(emphasis)
             .collection(`Week ${week}`)
             .get();

@@ -3,6 +3,7 @@ import {View, StyleSheet, ScrollView} from 'react-native';
 import {Card, Title, Paragraph, ProgressBar, Text} from 'react-native-paper';
 import {Grid, LineChart} from "react-native-svg-charts";
 import {auth, db} from "../config/firebaseConfig";
+import {copyWorkoutsToUser} from "../helperFunctions/firebaseCalls";
 
 const HomeScreen = () => {
     const [calculatedMax, setCalculatedMax] = useState(0);
@@ -19,6 +20,7 @@ const HomeScreen = () => {
     }));
 
     useEffect(() => {
+        // copyWorkoutsToUser(auth.currentUser.uid).then(r => console.log(r)).catch(e => console.log(e));
         fetchData();
     }, [fetchData]);
 
@@ -64,8 +66,9 @@ const HomeScreen = () => {
                     .get();
                 for (const dayDoc of weekSnapshot.docs) {
                     const dayId = dayDoc.id;
-                    const exercisesSnapshot = await db
-                        .collection("workouts")
+                    const exercisesSnapshot = await db.collection("users")
+                        .doc(auth.currentUser.uid)
+                        .collection("PushPullLegs")
                         .doc(emphasis)
                         .collection(`Week ${week}`)
                         .doc(dayId)

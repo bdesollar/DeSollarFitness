@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {View, StyleSheet, FlatList} from 'react-native';
 import {Card, Title, Paragraph, TextInput, Button} from 'react-native-paper';
 import {WebView} from 'react-native-webview';
-import {db} from "../config/firebaseConfig";
+import {auth, db} from "../config/firebaseConfig";
 import {updateData} from "../helperFunctions/firebaseCalls";
 
 const WorkoutViewScreen = ({route}) => {
@@ -16,7 +16,9 @@ const WorkoutViewScreen = ({route}) => {
 
     const fetchWorkoutData = async () => {
         const workoutSnapshot = await db
-            .collection("workouts")
+            .collection("users")
+            .doc(auth.currentUser.uid)
+            .collection("PushPullLegs")
             .doc(emphasis)
             .collection(`Week ${week}`)
             .doc(dayId)
