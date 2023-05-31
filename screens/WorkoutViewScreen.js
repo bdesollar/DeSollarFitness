@@ -137,7 +137,6 @@ const WorkoutViewScreen = ({route, navigation}) => {
                         value={item.notes}
                         onChangeText={(value) => updateNotes(item.id, value)}
                         style={styles.input}
-                        contentStyle={styles.inputContent}
                     />
                 </Card.Content>
             </Card>
@@ -285,7 +284,7 @@ const styles = StyleSheet.create({
     },
     input: {
         marginBottom: 16,
-        backgroundColor: 'transparent',
+        backgroundColor: 'white',
         color: '#FFFFFF',
     }, inputContent: {
         color: '#FFFFFF',
