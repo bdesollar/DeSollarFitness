@@ -97,7 +97,7 @@ const WorkoutViewScreen = ({route, navigation}) => {
             .filter(exercise => exercise.exerciseId === item.id);
 
         return (
-            <Card style={styles.card} onPress={() => showHistoryModalFunction(item.id)}>
+            <Card style={styles.card} onLongPress={() => showHistoryModalFunction(item.id)}>
                 <Card.Content>
                     <Title style={styles.cardTitle}>{item.Exercise}</Title>
                     <WebView

@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {View, StyleSheet, ScrollView} from 'react-native';
+import {View, StyleSheet, ScrollView, ActivityIndicator} from 'react-native';
 import {Card, Title, Paragraph, ProgressBar, Text} from 'react-native-paper';
 import {Grid, LineChart} from "react-native-svg-charts";
 import {auth, db} from "../config/firebaseConfig";
@@ -72,9 +72,9 @@ const HomeScreen = () => {
             console.log("date: ", date);
             console.log("exercises: ", exercises);
             for (const exercise of exercises) {
-                if (exercise.exerciseId.includes("Squat") ||
-                    exercise.exerciseId.includes("Bench") ||
-                    exercise.exerciseId.includes("Deadlift")) {
+                if (exercise.exerciseId === "Squat" ||
+                    exercise.exerciseId === "Bench Press" ||
+                    exercise.exerciseId === "Deadlift") {
                     let exerciseName = exercise.exerciseId;
                     if (exercise.exerciseId.includes("Squat")) {
                         exerciseName = "squat";
@@ -151,9 +151,9 @@ const HomeScreen = () => {
                         workoutDataArray.push(exerciseData);
 
                         if (
-                            exerciseData.Exercise.includes("Squat") ||
-                            exerciseData.Exercise.includes("Bench") ||
-                            exerciseData.Exercise.includes("Deadlift")
+                            exerciseData.Exercise === "Squat" ||
+                            exerciseData.Exercise === "Bench Press" ||
+                            exerciseData.Exercise === "Deadlift"
                         ) {
                             let exercise = exerciseData.Exercise;
                             if (exerciseData.Exercise.includes("Squat")) {
@@ -191,7 +191,10 @@ const HomeScreen = () => {
         setTotalRepsDone(totalRepsDone);
         setTotalWeightLifted(totalWeightLifted);
         setAllWorkoutData(workoutDataArray);
-        console.log("Maxes: ", oneRepMaxes);
+        await db.collection("users").doc(auth.currentUser.uid).update({
+            totalRepsDone: totalRepsDone,
+            totalWeightLifted: totalWeightLifted,
+        });
     };
 
 
@@ -206,13 +209,11 @@ const HomeScreen = () => {
 
     const updateMaxes = (exercise, weight, reps) => {
         const newMax = epleyFormula(weight, reps, exercise);
-        console.log("New max: ", newMax);
 
         setOneRepMaxes((prevMaxes) => {
             const currentMax = prevMaxes[exercise] || 0;
 
             if (newMax > currentMax) {
-                console.log("Updating maxes for ", exercise, " to ", newMax, " lbs");
                 return {...prevMaxes, [exercise]: newMax};
             } else {
                 return prevMaxes;
@@ -220,339 +221,346 @@ const HomeScreen = () => {
         });
     };
 
-    // Dummy data for the chart
-    const chartData = [50, 100, 150, 200, 250];
 
     return (
         <ScrollView style={styles.container}>
-            <Card style={styles.card}>
-                <Card style={styles.cardContent}>
-                    <Card.Content>
-                        <Title style={styles.title}>Progress for Squat</Title>
-                        <VictoryChart theme={VictoryTheme.material}>
-                            <VictoryAxis
-                                dependentAxis
-                                label="One Rep Maxes"
-                                style={{
-                                    axisLabel: {padding: 40},
-                                }}
-                                scale={
-                                    {
-                                        x: "time",
-                                    }
-                                }
-                                fixLabelOverlap={true}
-                            />
-                            <VictoryAxis
-                                label="Date"
-                                style={{
-                                    axisLabel: {padding: 30},
-                                }}
-                                scale={{x: "time", y: "linear"}}
-                                fixLabelOverlap={true}
-                                tickFormat={(x) => {
-                                    const date = new Date(x);
-                                    return `${date.getMonth() + 1}/${date.getDate()}`;
-                                }}
-                                tickCount={5}
-                            />
-                            <VictoryScatter
-                                data={workoutHistoryData.squat && workoutHistoryData.squat.map(item => {
-                                    let date = new Date(item.newDate);
-                                    return {
-                                        date: date,
-                                        oneRepMax: item.oneRepMax
-                                    };
-                                }) || []}
-                                x="date"
-                                y="oneRepMax"
-                                size={3}
-                                style={{
-                                    data: {fill: 'rgb(245, 195, 17)'},
-                                    padding: 30,
-                                }}
-                                line={true}
-                                bubbleProperty="oneRepMax"
-                                maxBubbleSize={5}
-                                minBubbleSize={3}
-                                symbol="circle"
-                            />
-                            <VictoryLine
-                                interpolation={"natural"}
-                                style={{
-                                    data: {stroke: "rgb(245, 195, 17)"},
-                                    parent: {border: "1px solid #ccc"}
-                                }}
-                                data={workoutHistoryData.squat && workoutHistoryData.squat.map(item => {
-                                    let date = new Date(item.newDate);
-                                    return {
-                                        date: date,
-                                        oneRepMax: item.oneRepMax
-                                    };
-                                }) || []}
-                                x="date"
-                                y="oneRepMax"
-                            >
-                                <VictoryLabel
-                                    textAnchor="middle"
-                                    style={{fontSize: 10}}
-                                    x={200}
-                                    y={30}
-                                    text="Natural"
-                                />
-                            </VictoryLine>
-                        </VictoryChart>
-                    </Card.Content>
-                </Card>
-                <Card style={styles.cardContent}>
-                    <Card.Content>
-                        <Title style={styles.title}>Progress for Bench</Title>
-                        <VictoryChart theme={VictoryTheme.material}>
-                            <VictoryAxis
-                                dependentAxis
-                                label="One Rep Maxes"
-                                style={{
-                                    axisLabel: {padding: 40},
-                                }}
-                                scale={
-                                    {
-                                        x: "time",
-                                    }
-                                }
-                                fixLabelOverlap={true}
-                            />
-                            <VictoryAxis
-                                label="Date"
-                                style={{
-                                    axisLabel: {padding: 30},
-                                }}
-                                scale={{x: "time", y: "linear"}}
-                                fixLabelOverlap={true}
-                                tickFormat={(x) => {
-                                    const date = new Date(x);
-                                    return `${date.getMonth() + 1}/${date.getDate()}`;
-                                }}
-                                tickCount={5}
-                            />
-                            <VictoryScatter
-                                data={workoutHistoryData.bench && workoutHistoryData.bench.map(item => {
-                                    let date = new Date(item.newDate);
-                                    return {
-                                        date: date,
-                                        oneRepMax: item.oneRepMax
-                                    };
-                                }) || []}
-                                x="date"
-                                y="oneRepMax"
-                                size={3}
-                                style={{
-                                    data: {fill: 'rgb(245, 195, 17)'},
-                                    padding: 30,
-                                }}
-                                line={true}
-                                bubbleProperty="oneRepMax"
-                                maxBubbleSize={5}
-                                minBubbleSize={3}
-                                symbol="circle"
-                            />
-                            <VictoryLine
-                                interpolation={"natural"}
-                                style={{
-                                    data: {stroke: "rgb(245, 195, 17)"},
-                                    parent: {border: "1px solid #ccc"}
-                                }}
-                                data={workoutHistoryData.bench && workoutHistoryData.bench.map(item => {
-                                    let date = new Date(item.newDate);
-                                    return {
-                                        date: date,
-                                        oneRepMax: item.oneRepMax
-                                    };
-                                }) || []}
-                                x="date"
-                                y="oneRepMax"
-                            >
-                                <VictoryLabel
-                                    textAnchor="middle"
-                                    style={{fontSize: 10}}
-                                    x={200}
-                                    y={30}
-                                    text="Natural"
-                                />
-                            </VictoryLine>
-                        </VictoryChart>
-                    </Card.Content>
-                </Card>
-                <Card style={styles.cardContent}>
-                    <Card.Content>
-                        <Title style={styles.title}>Progress for Deadlift</Title>
-                        <VictoryChart theme={VictoryTheme.material}>
-                            <VictoryAxis
-                                dependentAxis
-                                label="One Rep Maxes"
-                                style={{
-                                    axisLabel: {padding: 40},
-                                }}
-                                scale={
-                                    {
-                                        x: "time",
-                                    }
-                                }
-                                fixLabelOverlap={true}
-                            />
-                            <VictoryAxis
-                                label="Date"
-                                style={{
-                                    axisLabel: {padding: 30},
-                                }}
-                                scale={{x: "time", y: "linear"}}
-                                fixLabelOverlap={true}
-                                tickFormat={(x) => {
-                                    const date = new Date(x);
-                                    return `${date.getMonth() + 1}/${date.getDate()}`;
-                                }}
-                                tickCount={5}
-                            />
-                            <VictoryScatter
-                                data={workoutHistoryData.deadlift && workoutHistoryData.deadlift.map(item => {
-                                    let date = new Date(item.newDate);
-                                    return {
-                                        date: date,
-                                        oneRepMax: item.oneRepMax
-                                    };
-                                }) || []}
-                                x="date"
-                                y="oneRepMax"
-                                size={3}
-                                style={{
-                                    data: {fill: 'rgb(245, 195, 17)'},
-                                    padding: 30,
-                                }}
-                                line={true}
-                                bubbleProperty="oneRepMax"
-                                maxBubbleSize={5}
-                                minBubbleSize={3}
-                                symbol="circle"
-                            />
-                            <VictoryLine
-                                interpolation={"natural"}
-                                style={{
-                                    data: {stroke: "rgb(245, 195, 17)"},
-                                    parent: {border: "1px solid #ccc"}
-                                }}
-                                data={workoutHistoryData.deadlift && workoutHistoryData.deadlift.map(item => {
-                                    let date = new Date(item.newDate);
-                                    return {
-                                        date: date,
-                                        oneRepMax: item.oneRepMax
-                                    };
-                                }) || []}
-                                x="date"
-                                y="oneRepMax"
-                            >
-                                <VictoryLabel
-                                    textAnchor="middle"
-                                    style={{fontSize: 10}}
-                                    x={200}
-                                    y={30}
-                                    text="Natural"
-                                />
-                            </VictoryLine>
-                        </VictoryChart>
-                    </Card.Content>
-                </Card>
-                <Card style={styles.cardContent}>
-                    <Card.Content>
-                        <Title style={styles.title}>Progress for Overhead Press</Title>
-                        <VictoryChart theme={VictoryTheme.material}>
-                            <VictoryAxis
-                                dependentAxis
-                                label="One Rep Maxes"
-                                style={{
-                                    axisLabel: {padding: 40},
-                                }}
-                                scale={
-                                    {
-                                        x: "time",
-                                    }
-                                }
-                                fixLabelOverlap={true}
-                            />
-                            <VictoryAxis
-                                label="Date"
-                                style={{
-                                    axisLabel: {padding: 30},
-                                }}
-                                scale={{x: "time", y: "linear"}}
-                                fixLabelOverlap={true}
-                                tickFormat={(x) => {
-                                    const date = new Date(x);
-                                    return `${date.getMonth() + 1}/${date.getDate()}`;
-                                }}
-                                tickCount={5}
-                            />
-                            <VictoryScatter
-                                data={workoutHistoryData.overheadPress && workoutHistoryData.overheadPress.map(item => {
-                                    let date = new Date(item.newDate);
-                                    return {
-                                        date: date,
-                                        oneRepMax: item.oneRepMax
-                                    };
-                                }) || []}
-                                x="date"
-                                y="oneRepMax"
-                                size={3}
-                                style={{
-                                    data: {fill: 'rgb(245, 195, 17)'},
-                                    padding: 30,
-                                }}
-                                line={true}
-                                bubbleProperty="oneRepMax"
-                                maxBubbleSize={5}
-                                minBubbleSize={3}
-                                symbol="circle"
-                            />
-                            <VictoryLine
-                                interpolation={"natural"}
-                                style={{
-                                    data: {stroke: "rgb(245, 195, 17)"},
-                                    parent: {border: "1px solid #ccc"}
-                                }}
-                                data={workoutHistoryData.overheadPress && workoutHistoryData.overheadPress.map(item => {
-                                    let date = new Date(item.newDate);
-                                    return {
-                                        date: date,
-                                        oneRepMax: item.oneRepMax
-                                    };
-                                }) || []}
-                                x="date"
-                                y="oneRepMax"
-                            >
-                                <VictoryLabel
-                                    textAnchor="middle"
-                                    style={{fontSize: 10}}
-                                    x={200}
-                                    y={30}
-                                    text="Natural"
-                                />
-                            </VictoryLine>
-                        </VictoryChart>
-                    </Card.Content>
-                </Card>
-            </Card>
+            {allWorkoutData.length > 0 ? (
+                    <>
+                        <Card style={styles.card}>
+                            <Card style={styles.cardContent}>
+                                <Card.Content>
+                                    <Title style={styles.title}>Progress for Squat</Title>
+                                    <VictoryChart>
+                                        <VictoryAxis
+                                            dependentAxis
+                                            label="One Rep Maxes"
+                                            style={{
+                                                axisLabel: {padding: 37, fill: 'black'},
+                                                ticks: {stroke: 'black', size: 5},
+                                                grid: {stroke: 'white'},
+                                                axis: {stroke: 'black'}
+                                            }}
+                                            fixLabelOverlap={true}
+                                        />
+                                        <VictoryAxis
+                                            label="Date"
+                                            style={{
+                                                axisLabel: {padding: 35, fill: 'black'},
+                                                ticks: {stroke: 'black', size: 5},
+                                                grid: {stroke: 'white'},
+                                                axis: {stroke: 'black'}
+                                            }}
+                                            fixLabelOverlap={true}
+                                            tickFormat={(x) => {
+                                                const date = new Date(x);
+                                                return `${date.getMonth() + 1}/${date.getDate()}`;
+                                            }}
+                                            tickCount={5}
+                                        />
+                                        <VictoryScatter
+                                            data={workoutHistoryData.squat && workoutHistoryData.squat.map(item => {
+                                                let date = new Date(item.newDate);
+                                                return {
+                                                    date: date,
+                                                    oneRepMax: item.oneRepMax
+                                                };
+                                            }) || []}
+                                            x="date"
+                                            y="oneRepMax"
+                                            size={3}
+                                            style={{
+                                                data: {fill: 'rgb(245, 195, 17)'},
+                                                padding: 30,
+                                            }}
+                                            line={true}
+                                            bubbleProperty="oneRepMax"
+                                            maxBubbleSize={5}
+                                            minBubbleSize={3}
+                                            symbol="circle"
+                                        />
+                                        <VictoryLine
+                                            interpolation={"natural"}
+                                            style={{
+                                                data: {stroke: "rgb(245, 195, 17)"},
+                                                parent: {border: "1px solid #ccc"}
+                                            }}
+                                            data={workoutHistoryData.squat && workoutHistoryData.squat.map(item => {
+                                                let date = new Date(item.newDate);
+                                                return {
+                                                    date: date,
+                                                    oneRepMax: item.oneRepMax
+                                                };
+                                            }) || []}
+                                            x="date"
+                                            y="oneRepMax"
+                                        >
+                                            <VictoryLabel
+                                                textAnchor="middle"
+                                                style={{fontSize: 10}}
+                                                x={200}
+                                                y={30}
+                                                text="Natural"
+                                            />
+                                        </VictoryLine>
+                                    </VictoryChart>
+                                </Card.Content>
+                            </Card>
+                            <Card style={styles.cardContent}>
+                                <Card.Content>
+                                    <Title style={styles.title}>Progress for Bench</Title>
+                                    <VictoryChart>
+                                        <VictoryAxis
+                                            dependentAxis
+                                            label="One Rep Maxes"
+                                            style={{
+                                                axisLabel: {padding: 37, fill: 'black'},
+                                                ticks: {stroke: 'black', size: 5},
+                                                grid: {stroke: 'white'},
+                                                axis: {stroke: 'black'}
+                                            }}
+                                            fixLabelOverlap={true}
+                                        />
+                                        <VictoryAxis
+                                            label="Date"
+                                            style={{
+                                                axisLabel: {padding: 35, fill: 'black'},
+                                                ticks: {stroke: 'black', size: 5},
+                                                grid: {stroke: 'white'},
+                                                axis: {stroke: 'black'}
+                                            }}
+                                            fixLabelOverlap={true}
+                                            tickFormat={(x) => {
+                                                const date = new Date(x);
+                                                return `${date.getMonth() + 1}/${date.getDate()}`;
+                                            }}
+                                            tickCount={5}
+                                        />
+                                        <VictoryScatter
+                                            data={workoutHistoryData.bench && workoutHistoryData.bench.map(item => {
+                                                let date = new Date(item.newDate);
+                                                return {
+                                                    date: date,
+                                                    oneRepMax: item.oneRepMax
+                                                };
+                                            }) || []}
+                                            x="date"
+                                            y="oneRepMax"
+                                            size={3}
+                                            style={{
+                                                data: {fill: 'rgb(245, 195, 17)'},
+                                                padding: 30,
+                                            }}
+                                            line={true}
+                                            bubbleProperty="oneRepMax"
+                                            maxBubbleSize={5}
+                                            minBubbleSize={3}
+                                            symbol="circle"
+                                        />
+                                        <VictoryLine
+                                            interpolation={"natural"}
+                                            style={{
+                                                data: {stroke: "rgb(245, 195, 17)"},
+                                                parent: {border: "1px solid #ccc"}
+                                            }}
+                                            data={workoutHistoryData.bench && workoutHistoryData.bench.map(item => {
+                                                let date = new Date(item.newDate);
+                                                return {
+                                                    date: date,
+                                                    oneRepMax: item.oneRepMax
+                                                };
+                                            }) || []}
+                                            x="date"
+                                            y="oneRepMax"
+                                        >
+                                            <VictoryLabel
+                                                textAnchor="middle"
+                                                style={{fontSize: 10}}
+                                                x={200}
+                                                y={30}
+                                                text="Natural"
+                                            />
+                                        </VictoryLine>
+                                    </VictoryChart>
+                                </Card.Content>
+                            </Card>
+                            <Card style={styles.cardContent}>
+                                <Card.Content>
+                                    <Title style={styles.title}>Progress for Deadlift</Title>
+                                    <VictoryChart>
+                                        <VictoryAxis
+                                            dependentAxis
+                                            label="One Rep Maxes"
+                                            style={{
+                                                axisLabel: {padding: 37, fill: 'black'},
+                                                ticks: {stroke: 'black', size: 5},
+                                                grid: {stroke: 'white'},
+                                                axis: {stroke: 'black'}
+                                            }}
+                                            fixLabelOverlap={true}
+                                        />
+                                        <VictoryAxis
+                                            label="Date"
+                                            style={{
+                                                axisLabel: {padding: 35, fill: 'black'},
+                                                ticks: {stroke: 'black', size: 5},
+                                                grid: {stroke: 'white'},
+                                                axis: {stroke: 'black'}
+                                            }}
+                                            fixLabelOverlap={true}
+                                            tickFormat={(x) => {
+                                                const date = new Date(x);
+                                                return `${date.getMonth() + 1}/${date.getDate()}`;
+                                            }}
+                                            tickCount={5}
+                                        />
+                                        <VictoryScatter
+                                            data={workoutHistoryData.deadlift && workoutHistoryData.deadlift.map(item => {
+                                                let date = new Date(item.newDate);
+                                                return {
+                                                    date: date,
+                                                    oneRepMax: item.oneRepMax
+                                                };
+                                            }) || []}
+                                            x="date"
+                                            y="oneRepMax"
+                                            size={3}
+                                            style={{
+                                                data: {fill: 'rgb(245, 195, 17)'},
+                                                padding: 30,
+                                            }}
+                                            line={true}
+                                            bubbleProperty="oneRepMax"
+                                            maxBubbleSize={5}
+                                            minBubbleSize={3}
+                                            symbol="circle"
+                                        />
+                                        <VictoryLine
+                                            interpolation={"natural"}
+                                            style={{
+                                                data: {stroke: "rgb(245, 195, 17)"},
+                                                parent: {border: "1px solid #ccc"}
+                                            }}
+                                            data={workoutHistoryData.deadlift && workoutHistoryData.deadlift.map(item => {
+                                                let date = new Date(item.newDate);
+                                                return {
+                                                    date: date,
+                                                    oneRepMax: item.oneRepMax
+                                                };
+                                            }) || []}
+                                            x="date"
+                                            y="oneRepMax"
+                                        >
+                                            <VictoryLabel
+                                                textAnchor="middle"
+                                                style={{fontSize: 10}}
+                                                x={200}
+                                                y={30}
+                                                text="Natural"
+                                            />
+                                        </VictoryLine>
+                                    </VictoryChart>
+                                </Card.Content>
+                            </Card>
+                            <Card style={styles.cardContent}>
+                                <Card.Content>
+                                    <Title style={styles.title}>Progress for Overhead Press</Title>
+                                    <VictoryChart>
+                                        <VictoryAxis
+                                            dependentAxis
+                                            label="One Rep Maxes"
+                                            style={{
+                                                axisLabel: {padding: 37, fill: 'black'},
+                                                ticks: {stroke: 'black', size: 5},
+                                                grid: {stroke: 'white'},
+                                                axis: {stroke: 'black'}
+                                            }}
+                                            fixLabelOverlap={true}
+                                        />
+                                        <VictoryAxis
+                                            label="Date"
+                                            style={{
+                                                axisLabel: {padding: 35, fill: 'black'},
+                                                ticks: {stroke: 'black', size: 5},
+                                                grid: {stroke: 'white'},
+                                                axis: {stroke: 'black'}
+                                            }}
+                                            fixLabelOverlap={true}
+                                            tickFormat={(x) => {
+                                                const date = new Date(x);
+                                                return `${date.getMonth() + 1}/${date.getDate()}`;
+                                            }}
+                                            tickCount={5}
+                                        />
+                                        <VictoryScatter
+                                            data={workoutHistoryData.overheadPress && workoutHistoryData.overheadPress.map(item => {
+                                                let date = new Date(item.newDate);
+                                                return {
+                                                    date: date,
+                                                    oneRepMax: item.oneRepMax
+                                                };
+                                            }) || []}
+                                            x="date"
+                                            y="oneRepMax"
+                                            size={3}
+                                            style={{
+                                                data: {fill: 'rgb(245, 195, 17)'},
+                                                padding: 30,
+                                            }}
+                                            line={true}
+                                            bubbleProperty="oneRepMax"
+                                            maxBubbleSize={5}
+                                            minBubbleSize={3}
+                                            symbol="circle"
+                                        />
+                                        <VictoryLine
+                                            interpolation={"natural"}
+                                            style={{
+                                                data: {stroke: "rgb(245, 195, 17)"},
+                                                parent: {border: "1px solid #ccc"}
+                                            }}
+                                            data={workoutHistoryData.overheadPress && workoutHistoryData.overheadPress.map(item => {
+                                                let date = new Date(item.newDate);
+                                                return {
+                                                    date: date,
+                                                    oneRepMax: item.oneRepMax
+                                                };
+                                            }) || []}
+                                            x="date"
+                                            y="oneRepMax"
+                                        >
+                                            <VictoryLabel
+                                                textAnchor="middle"
+                                                style={{fontSize: 10, fill: 'rgb(245, 195, 17)'}}
+                                                x={200}
+                                                y={30}
+                                                text="Natural"
+                                            />
+                                        </VictoryLine>
+                                    </VictoryChart>
+                                </Card.Content>
+                            </Card>
+                        </Card>
 
-            <Card style={styles.card}>
-                <Card.Content>
-                    <Title style={styles.title}>Total Weight Lifted</Title>
-                    <Paragraph style={styles.paragraph}>{totalWeightLifted} lbs</Paragraph>
-                </Card.Content>
-            </Card>
+                        <Card style={styles.card}>
+                            <Card.Content>
+                                <Title style={styles.title}>Total Weight Lifted</Title>
+                                <Paragraph style={styles.paragraph}>{totalWeightLifted} lbs</Paragraph>
+                            </Card.Content>
+                        </Card>
 
-            <Card style={styles.card}>
-                <Card.Content>
-                    <Title style={styles.title}>Total Reps Completed</Title>
-                    <Paragraph style={styles.paragraph}>{totalRepsDone} reps</Paragraph>
-                </Card.Content>
-            </Card>
+                        <Card style={styles.card}>
+                            <Card.Content>
+                                <Title style={styles.title}>Total Reps Completed</Title>
+                                <Paragraph style={styles.paragraph}>{totalRepsDone} reps</Paragraph>
+                            </Card.Content>
+                        </Card>
+                    </>) :
+                (
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color="#0000ff"/>
+                    </View>
+                )
+            }
         </ScrollView>
     );
 };
@@ -573,10 +581,17 @@ const styles = StyleSheet.create({
     },
     title: {
         color: '#FFD700',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     paragraph: {
         color: '#FFFFFF',
-    },
+    }, loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#000000',
+    }
 });
 
 export default HomeScreen;
