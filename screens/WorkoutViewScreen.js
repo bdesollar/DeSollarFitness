@@ -4,7 +4,6 @@ import {Card, Title, Paragraph, TextInput, Button, Portal, Modal} from 'react-na
 import {WebView} from 'react-native-webview';
 import {auth, db} from "../config/firebaseConfig";
 import {updateData} from "../helperFunctions/firebaseCalls";
-import {Input} from "react-native-elements";
 
 const WorkoutViewScreen = ({route, navigation}) => {
     const [workoutData, setWorkoutData] = useState([]);
@@ -124,21 +123,27 @@ const WorkoutViewScreen = ({route, navigation}) => {
                         label="Weight"
                         value={String(item.Load)}
                         onChangeText={(value) => updateWeight(item.id, value)}
+                        style={styles.input}
+                        autoCapitalize={"none"}
                     />
                     <TextInput
                         label="Reps Done"
                         value={String(item.repsDone)}
                         onChangeText={(value) => updateReps(item["id"], value)}
+                        style={styles.input}
                     />
                     <TextInput
                         label="Notes"
                         value={item.notes}
                         onChangeText={(value) => updateNotes(item.id, value)}
+                        style={styles.input}
+                        contentStyle={styles.inputContent}
                     />
                 </Card.Content>
             </Card>
         );
     };
+
 
     async function updateWorkoutHistory(id) {
         // Get the current workout history
@@ -189,44 +194,33 @@ const WorkoutViewScreen = ({route, navigation}) => {
                 keyExtractor={(item) => item.id}
             />
             <Portal>
-                <Modal visible={showHistoryModal} onDismiss={hideHistoryModal}>
-                    <View style={styles.workoutHistoryModal}>
-                        <Title style={styles.cardTitle}>Workout History</Title>
-                        {exerciseId && Object.entries(workoutHistory).map(([workoutKey, exercises]) => (
-                            exercises.filter(exercise => exercise.exerciseId === exerciseId).map((exercise, index) => (
-                                <View style={{
-                                    borderColor: 'gold',
-                                    borderWidth: 1,
-                                    marginBottom: 10,
-                                    borderRadius: 10,
-                                    padding: 5,
-                                }}>
-                                    <Paragraph style={styles.workoutHistoryParagraph} key={index}>
-                                        Workout: {workoutKey}, Weight: {exercise.weight}, Reps: {exercise.reps},
-                                        Notes: {exercise.notes}
-                                    </Paragraph>
-                                </View>
-                            ))
-                        ))}
-                    </View>
+                <Modal visible={showHistoryModal} onDismiss={hideHistoryModal}
+                       contentContainerStyle={styles.modalContent}>
+                    <Title style={styles.modalTitle}>Workout History</Title>
+                    {exerciseId && Object.entries(workoutHistory).map(([workoutKey, exercises]) => (
+                        exercises.filter(exercise => exercise.exerciseId === exerciseId).map((exercise, index) => (
+                            <View style={styles.historyItem} key={index}>
+                                <Paragraph style={styles.historyText}>
+                                    Workout: {workoutKey}, Weight: {exercise.weight}, Reps: {exercise.reps},
+                                    Notes: {exercise.notes}
+                                </Paragraph>
+                            </View>
+                        ))
+                    ))}
                 </Modal>
             </Portal>
             <Button
                 style={styles.button}
                 mode="contained"
-                icon={"check"}
-                textColor={"black"}
+                icon="check"
                 onPress={() => {
                     saveWorkout();
                     navigation.navigate("Workouts");
-                }
-                }
+                }}
             >
                 Finish Workout
             </Button>
         </View>
-
-
     );
 };
 
@@ -234,77 +228,69 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 8,
-        backgroundColor: "#f0f0f0",
-        zIndex: 0,
+        backgroundColor: '#000000',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        margin: 20,
+        borderRadius: 10,
+    },
+    modalTitle: {
+        marginBottom: 20,
+        fontSize: 24,
+        fontWeight: 'bold',
+    },
+    historyItem: {
+        marginBottom: 10,
+        padding: 10,
+        borderRadius: 5,
+        backgroundColor: '#f5f5f5',
+    },
+    historyText: {
+        color: '#333',
+    },
+    button: {
+        margin: 20,
+        padding: 10,
+        borderRadius: 10,
+        backgroundColor: '#FFD700',
     },
     card: {
         margin: 15,
         borderRadius: 10,
-        backgroundColor: 'black',
-        borderColor: 'gold',
-        borderWidth: 1,
-        padding: 10,
+        backgroundColor: '#434343',
     },
     cardTitle: {
-        color: "gold",
-        fontWeight: "bold",
+        color: '#FFD700',
+        fontWeight: 'bold',
         fontSize: 20,
-        alignSelf: "center",
     },
     video: {
-        alignSelf: "center",
-        width: "100%",
+        alignSelf: 'center',
+        width: '100%',
         height: 200,
         borderRadius: 10,
-        overflow: "hidden",
+        overflow: 'hidden',
     },
-    input: {
-        marginBottom: 16,
-        backgroundColor: "transparent",
-        borderRadius: 5,
-        borderColor: "#1e88e5",
+    sectionTitle: {
+        color: '#FFD700',
+        fontWeight: 'bold',
+        fontSize: 18,
+        marginTop: 10,
     },
     paragraph: {
         marginBottom: 10,
-        color: "#ffffff",
-        borderWidth: 1,
+        color: '#FFFFFF',
     },
-    workoutHistoryContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 22,
-    },
-    workoutHistoryModal: {
-        margin: 20,
-        backgroundColor: 'black',
-        borderColor: 'gold',
-        color: 'gold',
-        borderWidth: 1,
-        borderRadius: 20,
-        padding: 35,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    workoutHistoryParagraph: {
-        marginBottom: 10,
-        color: 'gold',
-    },
-    sectionTitle: {
-        color: 'gold',
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginTop: 10,
-    },
-    button: {
-        marginTop: 10,
-        marginBottom: 15,
-        backgroundColor: 'gold',
-        borderRadius: 20,
-        padding: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
+    input: {
+        marginBottom: 16,
+        backgroundColor: 'transparent',
+        color: '#FFFFFF',
+    }, inputContent: {
+        color: '#FFFFFF',
     }
 });
+
 
 export default WorkoutViewScreen;

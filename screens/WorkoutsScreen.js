@@ -7,6 +7,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import {auth, db} from "../config/firebaseConfig";
 import WorkoutContext from "../context/WorkoutContext";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {LinearGradient} from 'expo-linear-gradient';
 
 
 const WorkoutsScreen = () => {
@@ -110,94 +111,93 @@ const WorkoutsScreen = () => {
         console.log("Total Volume: ", totalVolume + ", Day: ", item.day);
         return (
             <TouchableOpacity onPress={() => handleDayPress(item.day)} style={styles.card}>
-                <Card>
-                    <Card.Content>
-                        <View style={styles.cardHeader}>
-                            <Text style={styles.dayText}>{item.day}</Text>
-                            <MaterialCommunityIcons name="dumbbell" size={24}/>
-                        </View>
-                        <Caption>{item.emphasis}</Caption>
-                        {totalVolume > 0 ? (
-                            <>
-                                <Caption>Total Volume: {totalVolume}</Caption>
-                                <ProgressBar progress={totalVolume / 1000} color="#6200ee"/>
-                            </>
-                        ) : null}
-                    </Card.Content>
-                </Card>
+                <LinearGradient
+                    colors={['#000000', '#434343']}
+                    style={styles.gradientWeek}
+                >
+                    <Card style={styles.cardContent}>
+                        <Card.Content>
+                            <View style={styles.cardHeader}>
+                                <Text style={styles.dayText}>{item.day}</Text>
+                                <MaterialCommunityIcons name="dumbbell" size={24} color="#FFD700"/>
+                            </View>
+                            <Caption style={styles.caption}>{item.emphasis}</Caption>
+                            {totalVolume > 0 ? (
+                                <>
+                                    <Caption style={styles.caption}>Total Volume: {totalVolume}</Caption>
+                                    <ProgressBar progress={totalVolume / 1000} color="#FFD700"/>
+                                </>
+                            ) : null}
+                        </Card.Content>
+                    </Card>
+                </LinearGradient>
             </TouchableOpacity>
         );
     };
 
     return (
         <View style={styles.container}>
-            <View style={styles.pickerContainer}>
-                <Text style={styles.pickerLabel}>Week:</Text>
-                <DropDownPicker
-                    items={[
-                        {label: 'Week 1', value: 1},
-                        {label: 'Week 2', value: 2},
-                        {label: 'Week 3', value: 3},
-                        {label: 'Week 4', value: 4},
-                        {label: 'Week 5', value: 5},
-                        {label: 'Week 6', value: 6},
-                        {label: 'Week 7', value: 7},
-                        {label: 'Week 8', value: 8},
-                        {label: 'Week 9', value: 9},
-                        {label: 'Week 10', value: 10},
-                        {label: 'Week 11', value: 11},
-                        {label: 'Week 12', value: 12},
-                        {label: 'Week 13', value: 13},
-                    ]}
-                    defaultValue={week}
-                    containerStyle={styles.dropdownContainer}
-                    style={styles.dropdown}
-                    itemStyle={styles.dropdownItem}
-                    labelStyle={styles.dropdownLabel}
-                    dropDownStyle={styles.dropDown}
-                    onSelectItem={(item) => {
-                        //console.log("Week: ", item.value);
-                        setWeek(item.value);
-                        setOpenWeekPicker(false);
-                        setRefresh(!refresh); // Toggle the refresh state
-                    }}
-                    open={openWeekPicker}
-                    setOpen={setOpenWeekPicker}
-                    setValue={setWeekPickerValue}
-                    value={weekPickerValue}
+            <LinearGradient
+                colors={['#000000', '#434343']}
+                style={styles.gradient}
+            >
+                <View style={styles.pickerContainer}>
+                    <Text style={styles.pickerLabel}>Week:</Text>
+                    <DropDownPicker
+                        items={[
+                            {label: 'Week 1', value: 1},
+                            {label: 'Week 2', value: 2},
+                            {label: 'Week 3', value: 3},
+                            {label: 'Week 4', value: 4},
+                            {label: 'Week 5', value: 5},
+                            {label: 'Week 6', value: 6},
+                            {label: 'Week 7', value: 7},
+                            {label: 'Week 8', value: 8},
+                            {label: 'Week 9', value: 9},
+                            {label: 'Week 10', value: 10},
+                            {label: 'Week 11', value: 11},
+                            {label: 'Week 12', value: 12},
+                            {label: 'Week 13', value: 13},
+                        ]}
+                        defaultValue={week}
+                        containerStyle={styles.dropdownContainer}
+                        style={styles.dropdown}
+                        itemStyle={styles.dropdownItem}
+                        labelStyle={styles.dropdownLabel}
+                        dropDownStyle={styles.dropDown}
+                        onSelectItem={(item) => {
+                            setWeek(item.value);
+                            setOpenWeekPicker(false);
+                            setRefresh(!refresh);
+                        }}
+                        open={openWeekPicker}
+                        setOpen={setOpenWeekPicker}
+                        setValue={setWeekPickerValue}
+                        value={weekPickerValue}
+                    />
+                </View>
+
+                <FlatList
+                    data={workoutPlan}
+                    renderItem={renderPreview}
+                    keyExtractor={(day) => day.day}
+                    contentContainerStyle={styles.flatListContent}
+                    extraData={refresh}
                 />
-            </View>
-
-
-            <FlatList
-                data={workoutPlan}
-                renderItem={renderPreview}
-                keyExtractor={(day) => day.day}
-                contentContainerStyle={styles.flatListContent}
-                extraData={refresh} // Add this line
-            />
-
+            </LinearGradient>
         </View>
+
     );
 
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 8,
-    },
     pickerWrapper: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     picker: {
         width: 120,
-    },
-    flatListContent: {
-        flexGrow: 1,
-        justifyContent: 'center',
-        zIndex: -1,
     },
     card: {
         flex: 1,
@@ -208,10 +208,24 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
     },
+    cardContent: {
+        backgroundColor: 'transparent',
+    },
     dayText: {
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 8,
+        color: '#FFD700',
+    },
+    caption: {
+        color: '#FFFFFF',
+    },
+    container: {
+        flex: 1,
+    },
+    gradient: {
+        flex: 1,
+        padding: 8,
     },
     pickerContainer: {
         flexDirection: 'row',
@@ -221,6 +235,7 @@ const styles = StyleSheet.create({
     },
     pickerLabel: {
         marginRight: 8,
+        color: '#FFD700',
     },
     dropdownContainer: {
         height: 40,
@@ -236,9 +251,21 @@ const styles = StyleSheet.create({
     dropdownLabel: {
         fontSize: 14,
         textAlign: 'left',
+        color: '#000000',
     },
     dropDown: {
         backgroundColor: '#fafafa',
+    },
+    flatListContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        zIndex: -1,
+    },
+    gradientWeek: {
+        flex: 1,
+        justifyContent: 'center',
+        borderRadius: 15,
+        margin: 10,
     },
 });
 
