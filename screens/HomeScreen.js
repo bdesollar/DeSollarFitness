@@ -199,8 +199,13 @@ const HomeScreen = () => {
         await db.collection("users").doc(auth.currentUser.uid).update({
             totalRepsDone: totalRepsDone,
             totalWeightLifted: totalWeightLifted,
-            maxes: oneRepMaxes,
         });
+        // Go through each max and only update if it's greater than the current max
+        for (const [exercise, max] of Object.entries(oneRepMaxes)) {
+            await db.collection("users").doc(auth.currentUser.uid).update({
+                [`maxes.${exercise}`]: max,
+            });
+        }
     };
 
 

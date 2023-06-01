@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
-import {View, StyleSheet, Image} from 'react-native';
-import {TextInput, Button, HelperText} from 'react-native-paper';
+import {View, StyleSheet, Image, ScrollView} from 'react-native';
+import {TextInput, Button, HelperText, Title, Text} from 'react-native-paper';
 import {firebaseApp, auth, db} from '../config/firebaseConfig.js';
+import {LinearGradient} from "expo-linear-gradient";
 
 const SignUpScreen = ({navigation}) => {
     const [email, setEmail] = useState('');
@@ -13,34 +14,49 @@ const SignUpScreen = ({navigation}) => {
     };
 
     return (
-        <View style={styles.container}>
-            <Image source={require('../assets/Logo.png')} style={styles.logo}/>
-            <TextInput
-                label="Email"
-                value={email}
-                onChangeText={text => setEmail(text)}
-                style={styles.input}
-            />
-            <TextInput
-                label="Password"
-                value={password}
-                onChangeText={text => setPassword(text)}
-                secureTextEntry
-                style={styles.input}
-            />
-            <HelperText type="error" visible={error !== ''}>
-                {error}
-            </HelperText>
-            <Button mode="contained" onPress={handleNext} style={styles.button}>
-                Next
-            </Button>
-            <Button
-                mode="text"
-                onPress={() => navigation.navigate('Login')}
-                style={styles.textButton}>
-                Already have an account? Login
-            </Button>
-        </View>
+        <LinearGradient
+            colors={['#000000', '#434343']}
+            style={styles.gradient}
+        >
+            <ScrollView style={styles.scroll}>
+                <View style={styles.container}>
+                    <Title style={styles.title}>Sign-Up</Title>
+                    <Image source={require('../assets/Logo.png')} style={styles.logo}/>
+                    <HelperText type="error" visible={error !== ''} style={styles.errorText}>
+                        {error}
+                    </HelperText>
+                    <Text style={styles.label}>Email</Text>
+                    <TextInput
+                        value={email}
+                        onChangeText={setEmail}
+                        keyboardType="email-address"
+                        style={styles.input}
+                        mode="outlined"
+                        theme={{colors: {primary: '#FFD700', underlineColor: 'transparent', text: '#FFD700'}}}
+                    />
+                    <Text style={styles.label}>Password</Text>
+                    <TextInput
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry
+                        style={styles.input}
+                        mode="outlined"
+                        theme={{colors: {primary: '#FFD700', underlineColor: 'transparent', text: '#FFD700'}}}
+                    />
+                    <Button mode="contained" onPress={handleNext} style={styles.button} textColor={'black'}>
+                        Next
+                    </Button>
+                    <Button
+                        mode="text"
+                        onPress={() => navigation.navigate('Login')}
+                        style={styles.textButton}
+                        textColor={'#FFD700'}
+                    >
+                        Already have an account? Login
+                    </Button>
+                </View>
+            </ScrollView>
+        </LinearGradient>
     );
 };
 
@@ -49,25 +65,52 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         paddingHorizontal: 20,
-        backgroundColor: '#fff',
+        paddingTop: 20,
     },
     input: {
-        marginBottom: 16,
-    },
-    button: {
-        marginBottom: 8,
-    },
-    textButton: {
-        marginBottom: 8,
+        marginBottom: 20,
+        backgroundColor: '#fff',
     },
     logo: {
-        height: 300,
-        width: 300,
-        resizeMode: 'contain',
+        height: 150,
+        width: 150,
+        borderRadius: 50,
+        marginBottom: 10,
+        marginTop: 30,
         alignSelf: 'center',
-        position: 'absolute',
-        top: 75,
+        backgroundColor: '#fff',
     },
+    button: {
+        marginBottom: 20,
+        backgroundColor: '#FFD700',
+    },
+    textButton: {
+        marginBottom: 10,
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#FFD700',
+        textAlign: 'center',
+        marginBottom: 20,
+        marginTop: 35,
+    },
+    label: {
+        fontSize: 18,
+        color: '#FFD700',
+        marginBottom: 5,
+    },
+    errorText: {
+        fontSize: 16,
+        color: '#FF0000',
+        marginBottom: 20,
+    },
+    scroll: {
+        flex: 1,
+    },
+    gradient: {
+        flex: 1,
+    }
 });
 
 export default SignUpScreen;

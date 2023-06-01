@@ -1,40 +1,17 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet} from 'react-native';
-import {TextInput, Button, HelperText} from 'react-native-paper';
+import {Image, ScrollView, StyleSheet, View} from 'react-native';
+import {TextInput, Button, HelperText, Title, Text} from 'react-native-paper';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {auth, db} from '../config/firebaseConfig.js';
-import {copyWorkoutsToUser, createData, createUser} from "../helperFunctions/firebaseCalls";
+import {createData, createUser} from "../helperFunctions/firebaseCalls";
+import {LinearGradient} from "expo-linear-gradient";
 
 const InitialInfoScreen = ({navigation, route, onEmailVerified}) => {
     const [name, setName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [bio, setBio] = useState('');
     const [error, setError] = useState('');
-    const [emailSent, setEmailSent] = useState(false);
     const {email, password} = route.params;
-
-    useEffect(() => {
-        let intervalId;
-
-        const checkVerification = async () => {
-            // if (auth.currentUser && emailSent) {
-            if (auth.currentUser) {
-                await auth.currentUser.reload();
-                clearInterval(intervalId);
-                await handleCreateUser();
-            }
-        };
-
-        if (emailSent) {
-            intervalId = setInterval(checkVerification, 2000); // Check every 3 seconds
-        }
-
-        return () => {
-            if (intervalId) {
-                clearInterval(intervalId);
-            }
-        };
-    }, [emailSent]);
 
     const handleSignUp = async () => {
         if (name === '') {
@@ -47,10 +24,7 @@ const InitialInfoScreen = ({navigation, route, onEmailVerified}) => {
         try {
             // Create user in Firebase Auth
             const {user} = await auth.createUserWithEmailAndPassword(email, password);
-            // Confirm email before creating user
-            // await auth.currentUser.sendEmailVerification();
             await handleCreateUser();
-            setEmailSent(true);
             setError('Verification email sent. Please check your inbox.');
         } catch (err) {
             setError(err.message);
@@ -71,10 +45,10 @@ const InitialInfoScreen = ({navigation, route, onEmailVerified}) => {
                 overheadPress: 0,
             },
             maxGoals: {
-                squat: 0,
-                bench: 0,
-                deadlift: 0,
-                overheadPress: 0,
+                maxSquatGoal: 0,
+                maxBenchGoal: 0,
+                maxDeadliftGoal: 0,
+                maxOverheadPressGoal: 0,
             }
         }
         await createUser(auth.currentUser.uid, data);
@@ -83,48 +57,51 @@ const InitialInfoScreen = ({navigation, route, onEmailVerified}) => {
         navigation.navigate('Home');
     };
 
-    const resendVerificationEmail = async () => {
-        if (auth.currentUser) {
-            await auth.currentUser.sendEmailVerification();
-            setEmailSent(true);
-            setError('Verification email resent. Please check your inbox.');
-        }
-    };
-
     return (
-        <SafeAreaView style={styles.container}>
-            <HelperText type="error" visible={error !== ''}>
-                {error}
-            </HelperText>
-            <TextInput
-                label="Name"
-                value={name}
-                onChangeText={setName}
-                style={styles.input}
-            />
-            <TextInput
-                label="Phone Number"
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
-                keyboardType="phone-pad"
-                style={styles.input}
-            />
-            <TextInput
-                label="Bio"
-                value={bio}
-                onChangeText={setBio}
-                multiline
-                style={styles.input}
-            />
-            <Button mode="contained" onPress={handleSignUp}>
-                Sign Up
-            </Button>
-            {emailSent && (
-                <Button mode="text" onPress={resendVerificationEmail}>
-                    Resend Verification Email
-                </Button>
-            )}
-        </SafeAreaView>
+        <LinearGradient
+            colors={['#000000', '#434343']}
+            style={styles.gradient}
+        >
+            <ScrollView style={styles.scroll}>
+                <View style={styles.container}>
+                    <Title style={styles.title}>Initial Information</Title>
+                    <Image source={require('../assets/Logo.png')} style={styles.logo}/>
+                    <HelperText type="error" visible={error !== ''} style={styles.errorText}>
+                        {error}
+                    </HelperText>
+                    <Text style={styles.label}>Name</Text>
+                    <TextInput
+                        value={name}
+                        onChangeText={setName}
+                        keyboardType="default"
+                        style={styles.input}
+                        mode="outlined"
+                        theme={{colors: {primary: '#FFD700', underlineColor: 'transparent', text: '#FFD700'}}}
+                    />
+                    <Text style={styles.label}>Bio</Text>
+                    <TextInput
+                        value={bio}
+                        onChangeText={setBio}
+                        keyboardType="default"
+                        style={styles.input}
+                        mode="outlined"
+                        theme={{colors: {primary: '#FFD700', underlineColor: 'transparent', text: '#FFD700'}}}
+                    />
+                    <Text style={styles.label}>Phone Number</Text>
+                    <TextInput
+                        value={phoneNumber}
+                        onChangeText={setPhoneNumber}
+                        keyboardType="phone-pad"
+                        style={styles.input}
+                        mode="outlined"
+                        theme={{colors: {primary: '#FFD700', underlineColor: 'transparent', text: '#FFD700'}}}
+                    />
+                    <Button mode="contained" onPress={handleSignUp} style={styles.button} textColor={'black'}>
+                        Sign Up
+                    </Button>
+                </View>
+            </ScrollView>
+        </LinearGradient>
     );
 };
 
@@ -133,11 +110,52 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         paddingHorizontal: 20,
-        backgroundColor: '#fff',
+        paddingTop: 20,
     },
     input: {
-        marginVertical: 10,
+        marginBottom: 20,
+        backgroundColor: '#fff',
     },
+    logo: {
+        height: 150,
+        width: 150,
+        borderRadius: 50,
+        marginBottom: 10,
+        marginTop: 30,
+        alignSelf: 'center',
+        backgroundColor: '#fff',
+    },
+    button: {
+        marginBottom: 20,
+        backgroundColor: '#FFD700',
+    },
+    textButton: {
+        marginBottom: 10,
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#FFD700',
+        textAlign: 'center',
+        marginBottom: 20,
+        marginTop: 35,
+    },
+    label: {
+        fontSize: 18,
+        color: '#FFD700',
+        marginBottom: 5,
+    },
+    errorText: {
+        fontSize: 16,
+        color: '#FF0000',
+        marginBottom: 20,
+    },
+    scroll: {
+        flex: 1,
+    },
+    gradient: {
+        flex: 1,
+    }
 });
 
 export default InitialInfoScreen;

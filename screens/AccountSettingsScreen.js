@@ -44,6 +44,8 @@ const AccountSettingsScreen = ({navigation}) => {
         }
 
         Alert.alert('Account Settings', 'Your account settings have been saved.');
+        setAvatar(null);
+        setCoverPhoto(null);
     };
 
     const requestPermission = async () => {
@@ -216,6 +218,7 @@ const AccountSettingsScreen = ({navigation}) => {
                     <Button mode="contained"
                             onPress={handleSave}
                             style={styles.saveButton}
+                            textColor={'black'}
                     >
                         Save
                     </Button>

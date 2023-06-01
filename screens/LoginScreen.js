@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
-import {Image, StyleSheet, View} from 'react-native';
-import {Button, TextInput, HelperText} from 'react-native-paper';
+import {Image, StyleSheet, View, ScrollView} from 'react-native';
+import {Button, TextInput, HelperText, Text, Title, Avatar} from 'react-native-paper';
 import {auth} from '../config/firebaseConfig';
+import {LinearGradient} from "expo-linear-gradient";
 
 const LoginScreen = ({navigation}) => {
     const [email, setEmail] = useState('');
@@ -35,43 +36,59 @@ const LoginScreen = ({navigation}) => {
     };
 
     return (
-        <View style={styles.container}>
-            <Image source={require('../assets/Logo.png')} style={styles.logo}/>
-            <HelperText type="error" visible={error !== ''}>
-                {error}
-            </HelperText>
-            <TextInput
-                label="Email"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                style={styles.input}
-            />
-            <TextInput
-                label="Password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                style={styles.input}
-            />
-            <Button mode="contained" onPress={handleLogin}>
-                Log In
-            </Button>
-            {error && (
-                <Button mode="text" onPress={resendVerificationEmail}>
-                    Resend Verification Email
-                </Button>
-            )}
-            <Button mode="text" onPress={() => navigation.navigate('SignUp')}>
-                Sign Up
-            </Button>
-            <Button
-                mode="text"
-                onPress={() => navigation.navigate('ForgotPassword')}
-            >
-                Forgot Password
-            </Button>
-        </View>
+        <LinearGradient
+            colors={['#000000', '#434343']}
+            style={styles.gradient}
+        >
+            <ScrollView style={styles.scroll}>
+                <View style={styles.container}>
+                    <Title style={styles.title}>Login</Title>
+                    <Image source={require('../assets/Logo.png')} style={styles.logo}/>
+                    <HelperText type="error" visible={error !== ''} style={styles.errorText}>
+                        {error}
+                    </HelperText>
+                    <Text style={styles.label}>Email</Text>
+                    <TextInput
+                        value={email}
+                        onChangeText={setEmail}
+                        keyboardType="email-address"
+                        style={styles.input}
+                        mode="outlined"
+                        theme={{colors: {primary: '#FFD700', underlineColor: 'transparent', text: '#FFD700'}}}
+                    />
+                    <Text style={styles.label}>Password</Text>
+                    <TextInput
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry
+                        style={styles.input}
+                        mode="outlined"
+                        theme={{colors: {primary: '#FFD700', underlineColor: 'transparent', text: '#FFD700'}}}
+                    />
+                    <Button mode="contained" onPress={handleLogin} style={styles.button} textColor={'black'}>
+                        Log In
+                    </Button>
+                    {error && (
+                        <Button mode="text" onPress={resendVerificationEmail} style={styles.textButton}
+                                textColor={'#FFD700'}>
+                            Resend Verification Email
+                        </Button>
+                    )}
+                    <Button mode="text" onPress={() => navigation.navigate('SignUp')} style={styles.textButton}
+                            textColor={'#FFD700'}>
+                        Sign Up
+                    </Button>
+                    <Button
+                        mode="text"
+                        onPress={() => navigation.navigate('ForgotPassword')}
+                        style={styles.textButton}
+                        textColor={'#FFD700'}
+                    >
+                        Forgot Password
+                    </Button>
+                </View>
+            </ScrollView>
+        </LinearGradient>
     );
 };
 
@@ -80,19 +97,52 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         paddingHorizontal: 20,
-        backgroundColor: '#fff',
+        paddingTop: 20,
     },
     input: {
-        marginVertical: 10,
+        marginBottom: 20,
+        backgroundColor: '#fff',
     },
     logo: {
-        height: 300,
-        width: 300,
-        resizeMode: 'contain',
+        height: 150,
+        width: 150,
+        borderRadius: 50,
+        marginBottom: 10,
+        marginTop: 30,
         alignSelf: 'center',
-        position: 'absolute',
-        top: 75,
+        backgroundColor: '#fff',
     },
+    button: {
+        marginBottom: 20,
+        backgroundColor: '#FFD700',
+    },
+    textButton: {
+        marginBottom: 10,
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#FFD700',
+        textAlign: 'center',
+        marginBottom: 20,
+        marginTop: 35,
+    },
+    label: {
+        fontSize: 18,
+        color: '#FFD700',
+        marginBottom: 5,
+    },
+    errorText: {
+        fontSize: 16,
+        color: '#FF0000',
+        marginBottom: 20,
+    },
+    scroll: {
+        flex: 1,
+    },
+    gradient: {
+        flex: 1,
+    }
 });
 
 export default LoginScreen;

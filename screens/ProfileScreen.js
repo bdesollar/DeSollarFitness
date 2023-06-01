@@ -8,13 +8,15 @@ const ProfileScreen = ({navigation}) => {
     const [userData, setUserData] = useState(null);
 
     useEffect(() => {
-        fetchUserData();
+        const unsubscribe = db.collection("users").doc(auth.currentUser.uid)
+            .onSnapshot((doc) => {
+                setUserData(doc.data());
+            });
+
+        // Cleanup function
+        return () => unsubscribe();
     }, []);
 
-    const fetchUserData = async () => {
-        const userSnapshot = await db.collection("users").doc(auth.currentUser.uid).get();
-        setUserData(userSnapshot.data());
-    }
     return (
         <View style={styles.container}>
             <LinearGradient

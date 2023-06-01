@@ -4,6 +4,7 @@ import {TextInput, Button, Text, Title} from 'react-native-paper';
 import {db, firebaseApp, auth} from "../config/firebaseConfig";
 import firebase from 'firebase/compat/app';
 import 'firebase/auth';
+import {LinearGradient} from "expo-linear-gradient";
 
 
 const ChangePasswordScreen = () => {
@@ -34,46 +35,54 @@ const ChangePasswordScreen = () => {
     };
 
     return (
-        <View style={styles.container}>
-            <Title style={styles.title}>Change Password</Title>
-            <TextInput
-                label="Current Password"
-                value={currentPassword}
-                onChangeText={setCurrentPassword}
-                secureTextEntry
-                style={styles.input}
-                mode={'outlined'}
-            />
-            <TextInput
-                label="New Password"
-                value={newPassword}
-                onChangeText={setNewPassword}
-                secureTextEntry
-                style={styles.input}
-                mode={'outlined'}
-            />
-            <TextInput
-                label="Confirm New Password"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry
-                style={styles.input}
-                mode={'outlined'}
-            />
-            <Text
-                style={
-                    newPassword === confirmPassword
-                        ? styles.passwordMatch
-                        : styles.passwordMismatch
-                }
-            >
-                {newPassword === confirmPassword ? 'Passwords match' : 'Passwords do not match'}
-            </Text>
-            <Button mode="contained" onPress={handleChangePassword} style={styles.button}>
-                Update Password
-            </Button>
-            <Text style={styles.message}>{message}</Text>
-        </View>
+        <LinearGradient
+            colors={['#000000', '#434343']}
+            style={styles.gradient}
+        >
+            <View style={styles.container}>
+                <Title style={styles.title}>Change Password</Title>
+                <Text style={styles.label}>Current Password</Text>
+                <TextInput
+                    value={currentPassword}
+                    onChangeText={setCurrentPassword}
+                    secureTextEntry
+                    style={styles.input}
+                    mode={'outlined'}
+                    theme={{colors: {primary: '#FFD700', underlineColor: 'transparent', text: '#FFD700'}}}
+                />
+                <Text style={styles.label}>New Password</Text>
+                <TextInput
+                    value={newPassword}
+                    onChangeText={setNewPassword}
+                    secureTextEntry
+                    style={styles.input}
+                    mode={'outlined'}
+                    theme={{colors: {primary: '#FFD700', underlineColor: 'transparent', text: '#FFD700'}}}
+                />
+                <Text style={styles.label}>Confirm New Password</Text>
+                <TextInput
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    secureTextEntry
+                    style={styles.input}
+                    mode={'outlined'}
+                    theme={{colors: {primary: '#FFD700', underlineColor: 'transparent', text: '#FFD700'}}}
+                />
+                <Text
+                    style={
+                        newPassword === confirmPassword
+                            ? styles.passwordMatch
+                            : styles.passwordMismatch
+                    }
+                >
+                    {newPassword === confirmPassword ? 'Passwords match' : 'Passwords do not match'}
+                </Text>
+                <Button mode="contained" onPress={handleChangePassword} style={styles.button} textColor={'black'}>
+                    Update Password
+                </Button>
+                <Text style={styles.message}>{message}</Text>
+            </View>
+        </LinearGradient>
     );
 };
 
@@ -82,17 +91,26 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         paddingHorizontal: 20,
-        backgroundColor: '#fff',
     },
     title: {
         marginBottom: 20,
         alignSelf: 'center',
+        color: '#FFD700',
+        fontSize: 24,
+    },
+    label: {
+        fontSize: 20,
+        color: '#FFD700',
+        alignSelf: 'flex-start',
+        marginBottom: 5,
     },
     input: {
         marginBottom: 10,
     },
     button: {
         marginTop: 10,
+        marginBottom: 10,
+        backgroundColor: '#FFD700',
     },
     message: {
         marginTop: 15,
@@ -100,7 +118,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
     },
     passwordMatch: {
-        color: 'green',
+        color: '#FFD700',
         marginBottom: 10,
         alignSelf: 'center',
     },
@@ -109,6 +127,9 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         alignSelf: 'center',
     },
+    gradient: {
+        flex: 1,
+    }
 });
 
 export default ChangePasswordScreen;
