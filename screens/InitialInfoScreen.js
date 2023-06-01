@@ -69,6 +69,12 @@ const InitialInfoScreen = ({navigation, route, onEmailVerified}) => {
                 bench: 0,
                 deadlift: 0,
                 overheadPress: 0,
+            },
+            maxGoals: {
+                squat: 0,
+                bench: 0,
+                deadlift: 0,
+                overheadPress: 0,
             }
         }
         await createUser(auth.currentUser.uid, data);

@@ -10,6 +10,7 @@ import {Text} from "react-native-paper";
 import {auth} from "../config/firebaseConfig";
 import WorkoutsScreen from "../screens/WorkoutsScreen";
 import WorkoutViewScreen from "../screens/WorkoutViewScreen";
+import SetGoalsScreen from "../screens/SetGoalsScreen";
 
 const Stack = createStackNavigator();
 
@@ -19,7 +20,6 @@ const RootNavigator = ({logo}) => {
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
-            console.log('user', user);
             if (user) {
                 setIsAuthenticated(true);
                 console.log("user is authenticated");
@@ -51,6 +51,19 @@ const RootNavigator = ({logo}) => {
                     <Stack.Screen
                         name="WorkoutViewScreen"
                         component={WorkoutViewScreen}
+                        options={{
+                            headerTitle: () => (
+                                <Image
+                                    source={logo}
+                                    style={{width: 150, height: 40, resizeMode: 'contain'}}
+                                />
+                            ),
+                            headerTitleAlign: 'center',
+                        }}
+                    />
+                    <Stack.Screen
+                        name="SetGoalsScreen"
+                        component={SetGoalsScreen}
                         options={{
                             headerTitle: () => (
                                 <Image

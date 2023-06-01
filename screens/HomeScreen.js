@@ -29,34 +29,48 @@ const HomeScreen = () => {
 
 
     useEffect(() => {
-        // copyWorkoutsToUser(auth.currentUser.uid).then(r => console.log(r)).catch(e => console.log(e));
-        fetchData();
+        let unsubscribe;
+        fetchData().then(unsub => {
+            unsubscribe = unsub;
+        });
+
+        // Clean up on component unmount
+        return () => {
+            if (unsubscribe) {
+                unsubscribe();
+            }
+        };
     }, [fetchData]);
 
+
     useEffect(() => {
-        console.log("Maxes: ", oneRepMaxes);
     }, [oneRepMaxes]);
 
     useEffect(() => {
         const oneRepMaxHistory = calculateOneRepMaxHistory(workoutHistory);
-        console.log("The oneRepMaxHistory is: ", oneRepMaxHistory);
         setWorkoutHistoryData(oneRepMaxHistory);
     }, [workoutHistory]);
 
     const fetchData = async () => {
         const maxesData = await fetchMaxes();
         await fetchAllWorkouts(maxesData);
-        const workoutHistoryData = await fetchWorkoutHistory();
-        setWorkoutHistory(workoutHistoryData);
+        const unsubscribe = fetchWorkoutHistory();
+        return unsubscribe;
     };
 
-    const fetchWorkoutHistory = async () => {
+
+    const fetchWorkoutHistory = () => {
         const workoutHistoryRef = db.collection('workoutHistory');
         const workoutHistoryDoc = workoutHistoryRef.doc(auth.currentUser.uid);
-        const workoutHistoryData = (await workoutHistoryDoc.get()).data() || {};
-        console.log("workoutHistoryData: ", workoutHistoryData);
-        return workoutHistoryData;
+
+        const unsubscribe = workoutHistoryDoc.onSnapshot((doc) => {
+            const workoutHistoryData = doc.data() || {};
+            setWorkoutHistory(workoutHistoryData);
+        });
+
+        return unsubscribe;
     };
+
 
     const calculateOneRepMaxHistory = (workoutHistory) => {
         const oneRepMaxHistory = {
@@ -66,11 +80,7 @@ const HomeScreen = () => {
             overheadPress: [],
         };
 
-        console.log("workoutHistory: ", workoutHistory);
-
         for (const [date, exercises] of Object.entries(workoutHistory)) {
-            console.log("date: ", date);
-            console.log("exercises: ", exercises);
             for (const exercise of exercises) {
                 if (exercise.exerciseId === "Squat" ||
                     exercise.exerciseId === "Bench Press" ||
@@ -86,7 +96,6 @@ const HomeScreen = () => {
                     let dateParts = date.split("Date: ");
                     let newDate = dateParts[1];
                     const oneRepMax = exercise.weight * (1 + exercise.reps / 30);
-                    console.log("oneRepMax: ", oneRepMax);
                     if (oneRepMax === 0) {
                         continue;
                     }
@@ -94,7 +103,6 @@ const HomeScreen = () => {
                 }
             }
         }
-        console.log("oneRepMaxHistory: ", oneRepMaxHistory);
 
         return oneRepMaxHistory;
     };
@@ -103,7 +111,6 @@ const HomeScreen = () => {
     const fetchMaxes = async () => {
         const maxesRef = await db.collection("users").doc(auth.currentUser.uid).get();
         const maxesData = maxesRef.data().maxes;
-        console.log(maxesData);
         return maxesData;
 
     }
@@ -169,8 +176,6 @@ const HomeScreen = () => {
                                     exerciseData.Load,
                                     exerciseData.repsDone
                                 );
-                                console.log("Updating maxes for ", exercise);
-                                console.log("Maxes after update: ", oneRepMaxes);
                             }
                         }
                         if (exerciseData.repsDone % 1 === 0) {
@@ -194,6 +199,7 @@ const HomeScreen = () => {
         await db.collection("users").doc(auth.currentUser.uid).update({
             totalRepsDone: totalRepsDone,
             totalWeightLifted: totalWeightLifted,
+            maxes: oneRepMaxes,
         });
     };
 
@@ -273,7 +279,6 @@ const HomeScreen = () => {
                                                 padding: 30,
                                             }}
                                             line={true}
-                                            bubbleProperty="oneRepMax"
                                             maxBubbleSize={5}
                                             minBubbleSize={3}
                                             symbol="circle"
@@ -319,6 +324,9 @@ const HomeScreen = () => {
                                                 axis: {stroke: 'black'}
                                             }}
                                             fixLabelOverlap={true}
+
+                                            minDomain={{y: 0}}
+                                            maxDomain={{y: 500}}
                                         />
                                         <VictoryAxis
                                             label="Date"
@@ -350,19 +358,18 @@ const HomeScreen = () => {
                                                 data: {fill: 'rgb(245, 195, 17)'},
                                                 padding: 30,
                                             }}
-                                            line={true}
                                             bubbleProperty="oneRepMax"
                                             maxBubbleSize={5}
                                             minBubbleSize={3}
                                             symbol="circle"
                                         />
                                         <VictoryLine
-                                            interpolation={"natural"}
                                             style={{
                                                 data: {stroke: "rgb(245, 195, 17)"},
                                                 parent: {border: "1px solid #ccc"}
                                             }}
                                             data={workoutHistoryData.bench && workoutHistoryData.bench.map(item => {
+                                                console.log(item);
                                                 let date = new Date(item.newDate);
                                                 return {
                                                     date: date,

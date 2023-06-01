@@ -23,7 +23,6 @@ const WorkoutsScreen = () => {
 
 
     useEffect(() => {
-        //console.log("Emphasis: ", emphasis, "Week: ", week);
         fetchWorkouts(week);
     }, [week]);
 
@@ -51,8 +50,6 @@ const WorkoutsScreen = () => {
                 day: daySnapshot.id,
                 exercises: [],
             };
-            console.log("Day: ", daySnapshot.id, "Exercises: ", ",Week:", week)
-
             daySnapshot.ref
                 .collection("exercises")
                 .get()
@@ -86,7 +83,6 @@ const WorkoutsScreen = () => {
         }
         let totalVolume = 0;
         item.exercises.forEach((exercise) => {
-            // console.log("Exercise: ", exercise);
             let workingSets = parseInt(exercise['Working Sets']);
             let reps = exercise['Reps'];
             // Check if reps is of type string
@@ -105,10 +101,8 @@ const WorkoutsScreen = () => {
             if (isNaN(workingSets)) {
                 workingSets = 0;
             }
-            //console.log("Working Sets: ", workingSets, "Reps: ", reps);
             totalVolume += workingSets * reps;
         });
-        console.log("Total Volume: ", totalVolume + ", Day: ", item.day);
         return (
             <TouchableOpacity onPress={() => handleDayPress(item.day)} style={styles.card}>
                 <LinearGradient

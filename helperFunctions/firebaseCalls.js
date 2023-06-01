@@ -7,15 +7,12 @@ async function updateUserData(uid, data) {
 }
 
 async function createUser(uid, data) {
-    console.log('Creating user', uid, data);
     await db.collection('users').doc(uid).set(data);
     await createData();
 }
 
 const encrypt = (plainText) => {
-    console.log('Encrypting', plainText);
     const string = CryptoJS.AES.encrypt(plainText, secretKey).toString();
-    console.log('Encrypted', string);
     return string;
 };
 
@@ -25,15 +22,12 @@ const decrypt = (cipherText) => {
 };
 
 async function updateMaxesForUser(data, uid) {
-    console.log('Updating maxes for user', uid);
     await db.collection('users').doc(uid).update(data);
 
 }
 
 
 async function updateData(col, emphasis, week, dayId, id, data) {
-    console.log("Updating data");
-    console.log("Collection: ", col + " emphasis: " + emphasis + " week: " + week + " dayID: " + dayId + " id: " + id);
     await db.collection("users")
         .doc(auth.currentUser.uid)
         .collection("PushPullLegs").doc(emphasis).collection(week).doc(dayId).collection("exercises").doc(id).update(data);
@@ -42,8 +36,6 @@ async function updateData(col, emphasis, week, dayId, id, data) {
 async function createData() {
     const uid = auth.currentUser.uid;
     const emphasises = ["4x - Phase 1", "4x - Phase 2", "4x - Phase 3"];
-
-    console.log('UID:', uid);
 
     for (const emphasis of emphasises) {
         console.log('Processing emphasis:', emphasis);

@@ -6,6 +6,8 @@ import {updateUserData} from '../helperFunctions/firebaseCalls';
 import * as ImagePicker from 'expo-image-picker';
 import {manipulateAsync} from 'expo-image-manipulator';
 import * as ImageManipulator from 'expo-image-manipulator';
+import {LinearGradient} from "expo-linear-gradient";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 const AccountSettingsScreen = ({navigation}) => {
     const [name, setName] = useState('');
@@ -81,7 +83,6 @@ const AccountSettingsScreen = ({navigation}) => {
                     console.log('User cancelled image picker');
                 } else {
                     const source = response.assets[0].uri;
-                    console.log("Source: " + source);
                     if (type === 'avatar') {
                         setAvatar(source);
                     } else if (type === 'coverPhoto') {
@@ -125,80 +126,103 @@ const AccountSettingsScreen = ({navigation}) => {
     };
 
     return (
-        <ScrollView style={styles.scroll}>
-            <View style={styles.container}>
-                <TextInput
-                    label="Name"
-                    value={name}
-                    onChangeText={setName}
-                    style={styles.input}
-                    mode="outlined"
-                />
-                <TextInput
-                    label="Bio"
-                    value={bio}
-                    onChangeText={setBio}
-                    style={styles.input}
-                    mode="outlined"
-                    multiline
-                />
-                <TextInput
-                    label="Phone Number"
-                    value={phoneNumber}
-                    onChangeText={setPhoneNumber}
-                    style={styles.input}
-                    mode="outlined"
-                    keyboardType="phone-pad"
-                />
-                {avatar && (
+        <LinearGradient
+            colors={['#000000', '#434343']}
+            style={styles.gradient}
+        >
+            <ScrollView style={styles.scroll}>
+                <View style={styles.container}>
+                    <Text style={styles.label}>Name</Text>
+                    <TextInput
+                        value={name}
+                        onChangeText={setName}
+                        style={styles.input}
+                        mode="outlined"
+                        theme={{colors: {primary: '#FFD700', underlineColor: 'transparent', text: '#FFD700'}}}
+                    />
+                    <Text style={styles.label}>Bio</Text>
+                    <TextInput
+                        value={bio}
+                        onChangeText={setBio}
+                        style={styles.input}
+                        mode="outlined"
+                        multiline
+                        theme={{colors: {primary: '#FFD700', underlineColor: 'transparent', text: '#FFD700'}}}
+                    />
+                    <Text style={styles.label}>Phone Number</Text>
+                    <TextInput
+                        value={phoneNumber}
+                        onChangeText={setPhoneNumber}
+                        style={styles.input}
+                        mode="outlined"
+                        keyboardType="phone-pad"
+                        theme={{colors: {primary: '#FFD700', underlineColor: 'transparent', text: '#FFD700'}}}
+                    />
                     <View style={styles.imageContainer}>
-                        <Text style={styles.imageLabel}>Avatar Preview:</Text>
-                        <Image source={{uri: avatar}} style={styles.avatar}/>
+                        <Text style={styles.imageLabel}>Avatar</Text>
+                        {avatar && (
+                            <Image source={{uri: avatar}} style={styles.avatar}/>
+                        )}
+                        <Button
+                            mode="outlined"
+                            onPress={() => pickImage('avatar')}
+                            style={styles.imageButton}
+                            icon={({color, size}) => (
+                                <MaterialCommunityIcons name="camera" color={'#FFD700'} size={size}/>
+                            )}
+                            textColor={'#FFD700'}
+                        >
+                            Change
+                        </Button>
                     </View>
-                )}
-                <Button
-                    mode="outlined"
-                    onPress={() => pickImage('avatar')}
-                    style={styles.imageButton}
-                >
-                    Change Avatar
-                </Button>
-                {coverPhoto && (
                     <View style={styles.imageContainer}>
-                        <Text style={styles.imageLabel}>Cover Photo Preview:</Text>
-                        <Image source={{uri: coverPhoto}} style={styles.coverPhoto}/>
+                        <Text style={styles.imageLabel}>Cover Photo</Text>
+                        {coverPhoto && (
+                            <Image source={{uri: coverPhoto}} style={styles.coverPhoto}/>
+                        )}
+                        <Button
+                            mode="outlined"
+                            onPress={() => pickImage('coverPhoto')}
+                            style={styles.imageButton}
+                            icon={({color, size}) => (
+                                <MaterialCommunityIcons name="camera" color={'#FFD700'} size={size}/>
+                            )}
+                            textColor={'#FFD700'}
+                        >
+                            Change
+                        </Button>
                     </View>
-                )}
-                <Button
-                    mode="outlined"
-                    onPress={() => pickImage('coverPhoto')}
-                    style={styles.imageButton}
-                >
-                    Change Cover Photo
-                </Button>
-                <ProgressBar
-                    progress={uploadProgress}
-                    style={styles.progressBar}
-                    visible={uploadProgress > 0}
-                />
-                <Caption style={styles.progressCaption}>
-                    {uploadProgress > 0 ? `Uploading... ${Math.round(uploadProgress * 100)}%` : ''}
-                </Caption>
-                <Button mode="contained" onPress={handleSave} style={styles.saveButton}>
-                    Save
-                </Button>
-                <Text style={styles.text}>Change Password</Text>
-                <Button
-                    mode="text"
-                    onPress={() => navigation.navigate('ChangePassword')}
-                    style={styles.changePasswordButton}
-                >
-                    Change Password
-                </Button>
-            </View>
-        </ScrollView>
+                    {uploadProgress > 0 && (
+                        <>
+                            <ProgressBar
+                                progress={uploadProgress}
+                                style={styles.progressBar}
+                                visible={uploadProgress > 0}
+                                color="#FFD700"
+                            />
+                            <Caption style={styles.progressCaption}>
+                                {uploadProgress > 0 ? `Uploading... ${Math.round(uploadProgress * 100)}%` : ''}
+                            </Caption>
+                        </>
+                    )}
+                    <Button
+                        mode="text"
+                        onPress={() => navigation.navigate('ChangePassword')}
+                        style={styles.changePasswordButton}
+                        textColor={'#FFD700'}
+                    >
+                        Change Password
+                    </Button>
+                    <Button mode="contained"
+                            onPress={handleSave}
+                            style={styles.saveButton}
+                    >
+                        Save
+                    </Button>
+                </View>
+            </ScrollView>
+        </LinearGradient>
     );
-
 };
 
 const styles = StyleSheet.create({
@@ -209,22 +233,24 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         marginTop: 20,
     },
-    title: {
-        marginBottom: 20,
+    label: {
+        fontSize: 18,
+        color: '#FFD700',
+        alignSelf: 'flex-start',
+        marginBottom: 5,
     },
     input: {
         width: '100%',
         marginBottom: 20,
+        fontSize: 16,
     },
     saveButton: {
         marginBottom: 20,
-    },
-    text: {
-        fontSize: 18,
-        marginBottom: 10,
+        backgroundColor: '#FFD700',
     },
     changePasswordButton: {
-        marginTop: 10,
+        marginBottom: 20,
+        borderColor: '#FFD700',
     },
     avatar: {
         width: 100,
@@ -240,14 +266,17 @@ const styles = StyleSheet.create({
     imageContainer: {
         width: '100%',
         marginBottom: 20,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
     },
     imageLabel: {
         fontSize: 18,
-        marginBottom: 5,
+        color: '#FFD700',
     },
     imageButton: {
         marginBottom: 20,
+        borderColor: '#FFD700',
     },
     progressBar: {
         width: '100%',
@@ -255,10 +284,13 @@ const styles = StyleSheet.create({
     },
     progressCaption: {
         marginBottom: 20,
+        color: '#FFD700',
     },
     scroll: {
         flex: 1,
-        backgroundColor: '#fff',
+    },
+    gradient: {
+        flex: 1,
     }
 });
 
