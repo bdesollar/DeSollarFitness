@@ -200,11 +200,15 @@ const HomeScreen = () => {
             totalRepsDone: totalRepsDone,
             totalWeightLifted: totalWeightLifted,
         });
+        const userRef = await db.collection("users").doc(auth.currentUser.uid).get();
+        const userData = userRef.data();
         // Go through each max and only update if it's greater than the current max
         for (const [exercise, max] of Object.entries(oneRepMaxes)) {
-            await db.collection("users").doc(auth.currentUser.uid).update({
-                [`maxes.${exercise}`]: max,
-            });
+            if (max > userData.maxes[exercise]) {
+                await db.collection("users").doc(auth.currentUser.uid).update({
+                    [`maxes.${exercise}`]: max,
+                });
+            }
         }
     };
 
@@ -566,10 +570,11 @@ const HomeScreen = () => {
                                 <Paragraph style={styles.paragraph}>{totalRepsDone} reps</Paragraph>
                             </Card.Content>
                         </Card>
-                    </>) :
+                    </>
+                ) :
                 (
-                    <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="large" color="#0000ff"/>
+                    <View style={styles.container}>
+                        <ActivityIndicator size="large" color="#FFD700" style={styles.activityIndicator}/>
                     </View>
                 )
             }
@@ -598,11 +603,12 @@ const styles = StyleSheet.create({
     },
     paragraph: {
         color: '#FFFFFF',
-    }, loadingContainer: {
+    },
+    activityIndicator: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#000000',
+        height: 80
     }
 });
 

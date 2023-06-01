@@ -43,7 +43,7 @@ const SetGoalsScreen = ({navigation}) => {
                 colors={['#000000', '#434343']}
                 style={styles.gradient}
             >
-                {maxOverheadPressGoal && maxDeadliftGoal && maxBenchGoal && maxSquatGoal ?
+                {userData ?
                     (
                         <>
                             <Title style={styles.title}>Set Your Goals</Title>
