@@ -11,10 +11,12 @@ const firebaseApp = firebase.initializeApp(firebaseConfig);
 
 // Import GoogleAuthProvider
 import {GoogleAuthProvider} from 'firebase/auth';
+import * as SQLite from "expo-sqlite";
 
 const db = firebaseApp.firestore();
 const auth = firebaseApp.auth();
 
 const storage = firebaseApp.storage();
+
 
 export {auth, db, storage, firebaseApp, GoogleAuthProvider};

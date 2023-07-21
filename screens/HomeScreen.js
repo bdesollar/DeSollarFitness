@@ -3,8 +3,10 @@ import {View, StyleSheet, ScrollView, ActivityIndicator} from 'react-native';
 import {Card, Title, Paragraph, ProgressBar, Text} from 'react-native-paper';
 import {Grid, LineChart} from "react-native-svg-charts";
 import {auth, db} from "../config/firebaseConfig";
-import {copyWorkoutsToUser} from "../helperFunctions/firebaseCalls";
+import {copyWorkoutsToUser, saveDataToSQLite} from "../helperFunctions/firebaseCalls";
 import {VictoryLine, VictoryChart, VictoryAxis, VictoryTheme, VictoryScatter, VictoryLabel} from 'victory-native';
+import * as SQLite from "expo-sqlite";
+import * as FileSystem from 'expo-file-system';
 
 
 const HomeScreen = () => {
@@ -44,7 +46,66 @@ const HomeScreen = () => {
 
 
     useEffect(() => {
-    }, [oneRepMaxes]);
+        saveData();
+    }, []);
+
+    async function saveData() {
+        await saveDataToSQLite();
+        console.log("Data saved to SQLite");
+        await logSQLiteData();
+    }
+
+    async function logSQLiteData() {
+        const dbSql = SQLite.openDatabase('db.desollarFitness');
+
+        // Show the path to the SQLite database
+        console.log("SQLite database path:", FileSystem.documentDirectory + 'SQLite/db.desollarFitness');
+
+        // Log user data from SQLite
+        dbSql.transaction(tx => {
+            tx.executeSql('select * from users', [], (_, {rows}) =>
+                // console.log('User data in SQLite:', rows._array),
+                (_, error) => {
+                    console.log('Error logging user data from SQLite:', error);
+                    return true; // stops transaction on error
+                }
+            );
+        });
+
+        // Log workout data from SQLite
+        dbSql.transaction(tx => {
+            tx.executeSql('select * from workouts', [], (_, {rows}) =>
+                // console.log('Workout data in SQLite:', rows._array),
+                (_, error) => {
+                    console.log('Error logging workout data from SQLite:', error);
+                    return true; // stops transaction on error
+                }
+            );
+        });
+
+        // Show all the tables in the SQLite database
+        dbSql.transaction(tx => {
+            tx.executeSql('SELECT name FROM sqlite_master WHERE type="table"', [], (_, {rows}) =>
+                // console.log('Tables in SQLite:', rows._array),
+                (_, error) => {
+                    console.log('Error logging tables in SQLite:', error);
+                    return true; // stops transaction on error
+                }
+            );
+        });
+
+        // Log workout history data from SQLite
+        dbSql.transaction(tx => {
+            tx.executeSql('select * from workoutHistory', [], (_, {rows}) =>
+                // console.log('Workout history data in SQLite:', rows._array),
+                (_, error) => {
+                    console.log('Error logging workout history data from SQLite:', error);
+                    return true; // stops transaction on error
+                }
+            );
+        });
+    }
+
 
     useEffect(() => {
         const oneRepMaxHistory = calculateOneRepMaxHistory(workoutHistory);
@@ -335,7 +396,6 @@ const HomeScreen = () => {
                                             fixLabelOverlap={true}
 
                                             minDomain={{y: 0}}
-                                            maxDomain={{y: 500}}
                                         />
                                         <VictoryAxis
                                             label="Date"

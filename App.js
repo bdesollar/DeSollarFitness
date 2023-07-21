@@ -3,13 +3,16 @@ import {NavigationContainer} from '@react-navigation/native';
 import {Image} from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import {DefaultTheme, Provider as PaperProvider} from 'react-native-paper';
-import {auth} from './config/firebaseConfig.js';
+import {auth, db} from './config/firebaseConfig.js';
 import logo from './assets/Logo.png';
 import RootNavigator from './navigation/RootNavigator';
 import * as Notifications from 'expo-notifications';
 import firebase from "firebase/compat/app";
 import WorkoutContext from './context/WorkoutContext';
-
+import * as BackgroundFetch from 'expo-background-fetch';
+import * as TaskManager from 'expo-task-manager';
+import * as SQLite from 'expo-sqlite';
+import {syncFirebaseWithSql} from "./helperFunctions/firebaseCalls";
 
 const theme = {
     ...DefaultTheme,
@@ -36,6 +39,26 @@ const theme = {
     },
     mode: 'adaptive',
 };
+
+const TASK_NAME = "BACKGROUND_SYNC";
+
+TaskManager.defineTask(TASK_NAME, async () => {
+    try {
+        const receivedNewData = await syncData();
+
+        console.log("Received new data: ", receivedNewData);
+
+        return receivedNewData ? BackgroundFetch.Result.NewData : BackgroundFetch.Result.NoData;
+    } catch (err) {
+        return BackgroundFetch.Result.Failed;
+    }
+});
+
+
+async function syncData() {
+    await syncFirebaseWithSql();
+}
+
 
 async function requestNotificationPermission() {
     const {status: existingStatus} = await Notifications.getPermissionsAsync();
@@ -66,25 +89,25 @@ const App = () => {
     const [emphasis, setEmphasis] = useState('default');
     const [week, setWeek] = useState(1);
 
-    requestNotificationPermission();
+    useEffect(() => {
+        registerBackgroundFetch().then(r => console.log("Registered background task"));
+    }, []);
 
-    // useEffect(() => {
-    //   const notesCollection = firebase.firestore().collection('notes');
-    //
-    //   function onNotesChange() {
-    //     return notesCollection.onSnapshot((querySnapshot) => {
-    //       querySnapshot.docChanges().forEach((change) => {
-    //         if (change.type === 'added' || change.type === 'modified') {
-    //           showNotification('Note updated', 'A new note has been added or edited.');
-    //           console.log('New note added or edited');
-    //         }
-    //       });
-    //     });
-    //   }
-    //
-    //   const unsubscribe = onNotesChange();
-    //   return () => unsubscribe();
-    // }, []);
+    async function registerBackgroundFetch() {
+        try {
+            await BackgroundFetch.registerTaskAsync(TASK_NAME, {
+                stopOnTerminate: false,
+                startOnBoot: true,
+            });
+
+            console.log("Task registered");
+        } catch (err) {
+            console.log("Task Register failed:", err);
+        }
+    }
+
+
+    requestNotificationPermission();
 
     return (
         <WorkoutContext.Provider
