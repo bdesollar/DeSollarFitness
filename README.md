@@ -1,5 +1,7 @@
 # DeSollarFitness
 
+## Description
+
 DeSollarFitness is a comprehensive fitness application engineered to revolutionize the way you approach fitness. Built with React Native and Expo, this application provides a robust suite of features, enabling users to engage in a 12-workout regimen, dynamically track workouts, and follow personalized progress through calculated maxes over time, user profiles, and a goal-setting module.
 
 ![DeSollarFitnessPic](https://github.com/bdesollar/DeSollarFitness/assets/71299314/05eae10b-86c2-437f-8f28-5f02fb468cf1)
