@@ -26,19 +26,19 @@ DeSollarFitness is a comprehensive fitness application engineered to revolutioni
    ```bash
    git clone https://github.com/username/DeSollarFitness.git
    ```
-2. **Navigate To the Project Directory
+2. **Navigate To the Project Directory**
    ```bash
    cd DeSollarFitness
    ```
-3. **Install Dependencies
+3. **Install Dependencies**
    ```bash
    yarn install
    ```
- 4. **Start the Expo Server
+ 4. **Start the Expo Server**
     ```bash
     expo start
     ```
-5. **Scan the QR Code: Open the Expo app on your mobile device and scan the QR code to launch the application.
+5. **Scan the QR Code:** Open the Expo app on your mobile device and scan the QR code to launch the application.
 
 ### Usage
 DeSollarFitness is designed as a comprehensive fitness companion, empowering users to elevate their workout experience. Whether you're a beginner or an experienced athlete, the application's intelligent workout tracking, personalized regimens, and goal-driven approach provide a seamless and engaging pathway to fitness excellence.
